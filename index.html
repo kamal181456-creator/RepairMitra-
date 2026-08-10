@@ -1,47 +1,726 @@
 <!doctype html>
-<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RepairMitra</title>
-<style>
-body{font-family:Arial;margin:0;background:#f4f7fb;color:#172033}.wrap{max-width:620px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 5px 20px #0001}
-h1{color:#1769e0}input,select,textarea,button{width:100%;padding:13px;margin:7px 0;border-radius:10px;font-size:16px}
-input,select,textarea{border:1px solid #ccd4df}textarea{min-height:90px}button{border:0;background:#1769e0;color:#fff;font-weight:bold}
-.gray{background:#e9eef7;color:#172033}.msg{display:none;padding:12px;border-radius:10px;margin:10px 0}.ok{background:#e5f7ea;color:#176b36}.err{background:#fde8e8;color:#a12626}
-.hidden{display:none}.small{font-size:13px;color:#667085}.item{border:1px solid #e0e5ed;border-radius:12px;padding:12px;margin:9px 0}
-</style></head><body><div class="wrap">
-<div class="card"><h1>RepairMitra</h1><p>📱 घर बैठे मोबाइल रिपेयरिंग सेवा</p><p id="userEmail" class="small"></p></div>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<div class="card" id="loginBox"><h2>Customer Login</h2>
-<input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password">
-<button id="loginBtn">Login करें</button><div id="loginMsg" class="msg"></div></div>
+<title>RepairMitra - Mobile Repair Service</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f4f7fb;
+  color:#172033
+}
+
+.wrap{
+  max-width:700px;
+  margin:auto;
+  padding:14px
+}
+
+.header{
+  background:linear-gradient(135deg,#1769e0,#0d47a1);
+  color:white;
+  padding:24px 20px;
+  border-radius:20px;
+  margin-bottom:15px;
+  box-shadow:0 8px 25px #1769e033
+}
+
+.logo{
+  font-size:28px;
+  font-weight:bold
+}
+
+.tagline{
+  margin:7px 0 0;
+  font-size:15px;
+  opacity:.95
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  margin:14px 0;
+  box-shadow:0 5px 20px #0000000d
+}
+
+h2{
+  margin-top:0
+}
+
+input,select,textarea,button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border-radius:10px;
+  font-size:16px
+}
+
+input,select,textarea{
+  border:1px solid #ccd4df;
+  background:white
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical
+}
+
+button{
+  border:0;
+  background:#1769e0;
+  color:white;
+  font-weight:bold;
+  cursor:pointer
+}
+
+button:disabled{
+  opacity:.6
+}
+
+.gray{
+  background:#e9eef7;
+  color:#172033
+}
+
+.hidden{
+  display:none
+}
+
+.small{
+  font-size:13px;
+  color:#667085
+}
+
+.msg{
+  display:none;
+  padding:12px;
+  border-radius:10px;
+  margin:10px 0;
+  line-height:1.5
+}
+
+.ok{
+  background:#e5f7ea;
+  color:#176b36
+}
+
+.err{
+  background:#fde8e8;
+  color:#a12626
+}
+
+.complaint{
+  border:1px solid #e0e5ed;
+  border-radius:16px;
+  padding:16px;
+  margin:12px 0;
+  background:#fff
+}
+
+.complaint h3{
+  margin:0 0 10px
+}
+
+.row{
+  margin:7px 0;
+  line-height:1.5
+}
+
+.status{
+  display:inline-block;
+  padding:7px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+  background:#eef2ff;
+  color:#1769e0
+}
+
+.status.Pending{
+  background:#fff4d6;
+  color:#9a6700
+}
+
+.status.Assigned{
+  background:#e8f1ff;
+  color:#1769e0
+}
+
+.status.Accepted{
+  background:#e7f7ee;
+  color:#16794c
+}
+
+.status.Repairing{
+  background:#f0eaff;
+  color:#6842c2
+}
+
+.status.Completed{
+  background:#dff7e7;
+  color:#087443
+}
+
+.info{
+  background:#f5f8fc;
+  border-radius:12px;
+  padding:12px;
+  margin-top:12px
+}
+
+.footer{
+  text-align:center;
+  padding:20px 5px;
+  color:#667085;
+  font-size:13px
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<!-- HEADER -->
+
+<div class="header">
+
+<div class="logo">
+RepairMitra 🛠️
+</div>
+
+<div class="tagline">
+📱 घर बैठे मोबाइल रिपेयरिंग सेवा
+</div>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div class="card" id="loginBox">
+
+<h2>👤 Customer Login</h2>
+
+<p class="small">
+अपने account से login करके repair complaint दर्ज करें और उसका status देखें।
+</p>
+
+<input
+id="email"
+type="email"
+placeholder="Email Address"
+autocomplete="email">
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+autocomplete="current-password">
+
+<button id="loginBtn">
+Login करें
+</button>
+
+<div id="loginMsg" class="msg"></div>
+
+</div>
+
+
+<!-- DASHBOARD -->
 
 <div id="dashboard" class="hidden">
-<div class="card"><h2>🛠️ नई Repair Complaint</h2>
-<select id="brand"><option value="">मोबाइल ब्रांड चुनें</option><option>Samsung</option><option>Apple iPhone</option><option>Vivo</option><option>Oppo</option><option>Realme</option><option>Redmi</option><option>OnePlus</option><option>Motorola</option><option>Nothing</option><option>Other</option></select>
-<input id="model" placeholder="मोबाइल मॉडल"><input id="phone" type="tel" placeholder="मोबाइल नंबर">
-<select id="issue"><option value="">मोबाइल की समस्या चुनें</option><option>Display / Touch</option><option>Charging</option><option>Battery</option><option>Network / SIM</option><option>Speaker / Mic</option><option>Camera</option><option>Software / Hang</option><option>Water Damage</option><option>Other</option></select>
-<textarea id="description" placeholder="समस्या के बारे में पूरी जानकारी लिखें"></textarea>
-<textarea id="address" placeholder="Pickup / Service Address"></textarea>
-<button id="submitBtn">Complaint Submit करें</button><div id="submitMsg" class="msg"></div></div>
 
-<div class="card"><h2>📋 मेरी Complaints</h2><div id="complaints">Loading...</div></div>
-<div class="card"><button id="logoutBtn" class="gray">Logout</button></div>
-</div></div>
+<div class="card">
+
+<h2>👋 Welcome</h2>
+
+<p id="userEmail" class="small"></p>
+
+<div class="info">
+📌 अपनी mobile repair complaint यहाँ दर्ज करें।
+</div>
+
+</div>
+
+
+<!-- NEW COMPLAINT -->
+
+<div class="card">
+
+<h2>🛠️ नई Repair Booking</h2>
+
+<select id="brand">
+
+<option value="">
+मोबाइल ब्रांड चुनें
+</option>
+
+<option>Samsung</option>
+<option>Apple iPhone</option>
+<option>Vivo</option>
+<option>Oppo</option>
+<option>Realme</option>
+<option>Redmi</option>
+<option>OnePlus</option>
+<option>Motorola</option>
+<option>Nothing</option>
+<option>Other</option>
+
+</select>
+
+
+<input
+id="model"
+placeholder="मोबाइल मॉडल जैसे Samsung M20">
+
+
+<input
+id="phone"
+type="tel"
+placeholder="Customer Mobile Number">
+
+
+<select id="issue">
+
+<option value="">
+मोबाइल की समस्या चुनें
+</option>
+
+<option>Display / Touch</option>
+<option>Charging</option>
+<option>Battery</option>
+<option>Network / SIM</option>
+<option>Speaker / Mic</option>
+<option>Camera</option>
+<option>Software / Hang</option>
+<option>Water Damage</option>
+<option>Other</option>
+
+</select>
+
+
+<textarea
+id="description"
+placeholder="मोबाइल की समस्या के बारे में पूरी जानकारी लिखें">
+</textarea>
+
+
+<textarea
+id="address"
+placeholder="Pickup / Service Address">
+</textarea>
+
+
+<button id="submitBtn">
+📋 Complaint Submit करें
+</button>
+
+<div id="submitMsg" class="msg"></div>
+
+</div>
+
+
+<!-- COMPLAINTS -->
+
+<div class="card">
+
+<h2>📋 मेरी Complaints</h2>
+
+<p class="small">
+आपकी सभी repair complaints और उनका current status यहाँ दिखाई देगा।
+</p>
+
+<div id="complaints">
+Loading...
+</div>
+
+</div>
+
+
+<!-- LOGOUT -->
+
+<div class="card">
+
+<button id="refreshBtn" class="gray">
+🔄 Status Refresh करें
+</button>
+
+<button id="logoutBtn" class="gray">
+🚪 Logout
+</button>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+RepairMitra 🛠️<br>
+Trusted Mobile Repair Service
+</div>
+
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-const sb=window.supabase.createClient('https://rqnmshqrwntxilwnhqwa.supabase.co','sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v');
+
+const sb=window.supabase.createClient(
+'https://rqnmshqrwntxilwnhqwa.supabase.co',
+'sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v'
+);
+
 const $=id=>document.getElementById(id);
-function msg(id,t,ok=false){const e=$(id);e.textContent=t;e.className='msg '+(ok?'ok':'err');e.style.display='block';}
-function show(u){$('loginBox').classList.add('hidden');$('dashboard').classList.remove('hidden');$('userEmail').textContent='Login: '+u.email;load(u.id);}
-$('loginBtn').onclick=async()=>{const email=$('email').value.trim(),password=$('password').value;if(!email||!password)return msg('loginMsg','Email और Password भरें।');const r=await sb.auth.signInWithPassword({email,password});if(r.error)return msg('loginMsg',r.error.message);show(r.data.user);};
-$('submitBtn').onclick=async()=>{const s=await sb.auth.getSession(),u=s.data.session?.user;if(!u)return msg('submitMsg','पहले Login करें।');
-const brand=$('brand').value,model=$('model').value.trim(),phone=$('phone').value.trim(),issue=$('issue').value,address=$('address').value.trim();
-if(!brand||!model||!phone||!issue||!address)return msg('submitMsg','Brand, Model, Phone, Problem और Address भरें।');
-const b=$('submitBtn');b.disabled=true;b.textContent='Submit हो रहा है...';
-const r=await sb.from('complaints').insert({customer_id:u.id,brand,model,phone,issue,address,status:'Pending'}).select().single();
-b.disabled=false;b.textContent='Complaint Submit करें';if(r.error)return msg('submitMsg','Database Error: '+r.error.message);
-msg('submitMsg','✅ Complaint सफलतापूर्वक दर्ज हो गई।','ok');$('brand').value='';$('model').value='';$('phone').value='';$('issue').value='';$('address').value='';load(u.id);};
-async function load(uid){const r=await sb.from('complaints').select('id,brand,model,phone,issue,address,status,created_at').eq('customer_id',uid).order('created_at',{ascending:false});if(r.error){$('complaints').textContent='Load Error: '+r.error.message;return;}if(!r.data.length){$('complaints').textContent='अभी कोई complaint नहीं है।';return;}$('complaints').innerHTML=r.data.map(c=>'<div class="item"><b>'+c.brand+' - '+c.model+'</b><br>Status: '+(c.status||'Pending')+'<br>समस्या: '+c.issue+'<br>Phone: '+c.phone+'</div>').join('');}
-$('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload();};
-sb.auth.getSession().then(r=>{if(r.data.session)show(r.data.session.user);});
-</script></body></html>
+
+
+/* MESSAGE */
+
+function msg(id,text,ok=false){
+
+const e=$(id);
+
+e.textContent=text;
+
+e.className='msg '+(ok?'ok':'err');
+
+e.style.display='block';
+
+}
+
+
+/* SHOW DASHBOARD */
+
+function show(u){
+
+$('loginBox').classList.add('hidden');
+
+$('dashboard').classList.remove('hidden');
+
+$('userEmail').textContent='Login: '+u.email;
+
+load(u.id);
+
+}
+
+
+/* LOGIN */
+
+$('loginBtn').onclick=async()=>{
+
+const email=$('email').value.trim();
+
+const password=$('password').value;
+
+if(!email||!password){
+
+return msg(
+'loginMsg',
+'Email और Password भरें।'
+);
+
+}
+
+const r=await sb.auth.signInWithPassword({
+
+email,
+password
+
+});
+
+if(r.error){
+
+return msg(
+'loginMsg',
+r.error.message
+);
+
+}
+
+show(r.data.user);
+
+};
+
+
+/* SUBMIT COMPLAINT */
+
+$('submitBtn').onclick=async()=>{
+
+const s=await sb.auth.getSession();
+
+const u=s.data.session?.user;
+
+if(!u){
+
+return msg(
+'submitMsg',
+'पहले Login करें।'
+);
+
+}
+
+
+const brand=$('brand').value;
+
+const model=$('model').value.trim();
+
+const phone=$('phone').value.trim();
+
+const issue=$('issue').value;
+
+const description=$('description').value.trim();
+
+const address=$('address').value.trim();
+
+
+if(
+!brand||
+!model||
+!phone||
+!issue||
+!description||
+!address
+){
+
+return msg(
+'submitMsg',
+'कृपया सभी जानकारी भरें।'
+);
+
+}
+
+
+const b=$('submitBtn');
+
+b.disabled=true;
+
+b.textContent='Complaint Submit हो रही है...';
+
+
+const r=await sb
+.from('complaints')
+.insert({
+
+customer_id:u.id,
+
+brand:brand,
+
+model:model,
+
+phone:phone,
+
+issue:issue,
+
+description:description,
+
+address:address,
+
+status:'Pending'
+
+})
+.select()
+.single();
+
+
+b.disabled=false;
+
+b.textContent='📋 Complaint Submit करें';
+
+
+if(r.error){
+
+return msg(
+'submitMsg',
+'Database Error: '+r.error.message
+);
+
+}
+
+
+msg(
+'submitMsg',
+'✅ आपकी Complaint सफलतापूर्वक दर्ज हो गई।',
+true
+);
+
+
+/* CLEAR FORM */
+
+$('brand').value='';
+
+$('model').value='';
+
+$('phone').value='';
+
+$('issue').value='';
+
+$('description').value='';
+
+$('address').value='';
+
+
+load(u.id);
+
+};
+
+
+/* LOAD COMPLAINTS */
+
+async function load(uid){
+
+const r=await sb
+.from('complaints')
+.select(
+'id,brand,model,phone,issue,description,address,status,created_at'
+)
+.eq('customer_id',uid)
+.order(
+'created_at',
+{ascending:false}
+);
+
+
+if(r.error){
+
+$('complaints').textContent=
+'Load Error: '+r.error.message;
+
+return;
+
+}
+
+
+if(!r.data.length){
+
+$('complaints').innerHTML=
+'<div class="info">📭 अभी कोई complaint नहीं है।</div>';
+
+return;
+
+}
+
+
+$('complaints').innerHTML=r.data.map(c=>{
+
+const status=c.status||'Pending';
+
+return `
+
+<div class="complaint">
+
+<h3>
+📱 ${escapeHtml(c.brand)} - ${escapeHtml(c.model)}
+</h3>
+
+<div class="row">
+<b>Status:</b>
+<span class="status ${escapeHtml(status)}">
+${escapeHtml(status)}
+</span>
+</div>
+
+<div class="row">
+<b>🔧 समस्या:</b>
+${escapeHtml(c.issue)}
+</div>
+
+<div class="row">
+<b>📝 जानकारी:</b>
+${escapeHtml(c.description||'')}
+</div>
+
+<div class="row">
+<b>📞 Phone:</b>
+${escapeHtml(c.phone)}
+</div>
+
+<div class="row">
+<b>📍 Address:</b>
+${escapeHtml(c.address)}
+</div>
+
+<div class="row small">
+Complaint #${c.id}
+</div>
+
+</div>
+
+`;
+
+}).join('');
+
+}
+
+
+/* SAFE HTML */
+
+function escapeHtml(value){
+
+return String(value??'')
+.replace(/&/g,'&amp;')
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;')
+.replace(/"/g,'&quot;')
+.replace(/'/g,'&#039;');
+
+}
+
+
+/* REFRESH */
+
+$('refreshBtn').onclick=async()=>{
+
+const s=await sb.auth.getSession();
+
+const u=s.data.session?.user;
+
+if(u){
+
+load(u.id);
+
+msg(
+'submitMsg',
+'🔄 Status refresh हो गया।',
+true
+);
+
+}
+
+};
+
+
+/* LOGOUT */
+
+$('logoutBtn').onclick=async()=>{
+
+await sb.auth.signOut();
+
+location.reload();
+
+};
+
+
+/* KEEP LOGIN AFTER REFRESH */
+
+sb.auth.getSession().then(r=>{
+
+if(r.data.session){
+
+show(r.data.session.user);
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
