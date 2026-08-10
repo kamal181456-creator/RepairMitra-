@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>RepairMitra Vendor</title>
+
+<style>
+body{
+  font-family:Arial;
+  margin:0;
+  background:#f4f7fb;
+  color:#172033
+}
+.wrap{
+  max-width:760px;
+  margin:auto;
+  padding:16px
+}
+.card{
+  background:#fff;
+  padding:20px;
+  margin:14px 0;
+  border-radius:18px;
+  box-shadow:0 5px 20px #0001
+}
+input,select,button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border-radius:10px;
+  font-size:16px;
+  box-sizing:border-box
+}
+input,select{
+  border:1px solid #ccd4df
+}
+button{
+  border:0;
+  background:#1769e0;
+  color:white;
+  font-weight:bold
+}
+.gray{
+  background:#e9eef7;
+  color:#172033
+}
+.hidden{
+  display:none
+}
+.item{
+  border:1px solid #dfe5ed;
+  padding:15px;
+  margin:12px 0;
+  border-radius:14px
+}
+.msg{
+  padding:12px;
+  margin:10px 0;
+  border-radius:10px;
+  display:none
+}
+.err{
+  background:#fde8e8;
+  color:#a12626
+}
+.ok{
+  background:#e5f7ea;
+  color:#176b36
+}
+.small{
+  font-size:13px;
+  color:#667085
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="card">
+<h1>RepairMitra 🛠️</h1>
+<p>Vendor Panel</p>
+<p id="who" class="small"></p>
+</div>
+
+<!-- LOGIN -->
+
+<div class="card" id="login">
+
+<h2>Vendor Login</h2>
+
+<input
+id="email"
+type="email"
+placeholder="Vendor Email">
+
+<input
+id="pass"
+type="password"
+placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<div id="msg" class="msg err"></div>
+
+</div>
+
+
+<!-- PANEL -->
+
+<div id="panel" class="hidden">
+
+<div class="card">
+
+<h2>📋 मेरी Assigned Complaints</h2>
+
+<div id="list">
+Loading...
+</div>
+
+</div>
+
+
+<div class="card">
+
+<button class="gray" onclick="logout()">
+Logout
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const sb=supabase.createClient(
+"https://rqnmshqrwntxilwnhqwa.supabase.co",
+"sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"
+);
+
+const $=x=>document.getElementById(x);
+
+
+function error(t){
+
+$("msg").textContent=t;
+
+$("msg").style.display="block";
+
+}
+
+
+function success(t){
+
+$("msg").textContent=t;
+
+$("msg").className="msg ok";
+
+$("msg").style.display="block";
+
+}
+
+
+async function login(){
+
+const email=$("email").value.trim();
+
+const password=$("pass").value;
+
+if(!email || !password){
+
+return error("Email और Password भरें।");
+
+}
+
+const r=await sb.auth.signInWithPassword({
+
+email,
+password
+
+});
+
+if(r.error){
+
+return error(r.error.message);
+
+}
+
+const u=r.data.user;
+
+
+/* Check Vendor */
+
+const v=await sb
+.from("profiles")
+.select("id,role")
+.eq("id",u.id)
+.eq("role","vendor")
+.maybeSingle();
+
+
+if(v.error || !v.data){
+
+await sb.auth.signOut();
+
+return error("यह account Vendor नहीं है।");
+
+}
+
+
+$("login").classList.add("hidden");
+
+$("panel").classList.remove("hidden");
+
+$("who").textContent="Vendor: "+u.email;
+
+loadComplaints(u.id);
+
+}
+
+
+/* LOAD ASSIGNED COMPLAINTS */
+
+async function loadComplaints(uid){
+
+const r=await sb
+.from("complaints")
+.select("id,brand,model,phone,issue,address,status,created_at")
+.eq("vendor_id",uid)
+.order("created_at",{ascending:false});
+
+
+if(r.error){
+
+$("list").textContent=
+"Database Error: "+r.error.message;
+
+return;
+
+}
+
+
+if(!r.data.length){
+
+$("list").innerHTML=
+"अभी आपको कोई complaint assign नहीं हुई है।";
+
+return;
+
+}
+
+
+$("list").innerHTML=r.data.map(x=>`
+
+<div class="item">
+
+<h3>
+#${x.id} — ${x.brand} ${x.model}
+</h3>
+
+<p>
+<b>Status:</b> ${x.status || "Assigned"}
+</p>
+
+<p>
+<b>Problem:</b> ${x.issue}
+</p>
+
+<p>
+<b>Customer Phone:</b> ${x.phone}
+</p>
+
+<p>
+<b>Address:</b> ${x.address}
+</p>
+
+<select id="s${x.id}">
+
+<option value="Assigned"
+${x.status==="Assigned"?"selected":""}>
+Assigned
+</option>
+
+<option value="Accepted"
+${x.status==="Accepted"?"selected":""}>
+Accepted
+</option>
+
+<option value="Repairing"
+${x.status==="Repairing"?"selected":""}>
+Repairing
+</option>
+
+<option value="Completed"
+${x.status==="Completed"?"selected":""}>
+Completed
+</option>
+
+</select>
+
+<button onclick="updateStatus(${x.id})">
+Status Update करें
+</button>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* UPDATE STATUS */
+
+async function updateStatus(id){
+
+const status=$("s"+id).value;
+
+const r=await sb
+.from("complaints")
+.update({
+status:status,
+updated_at:new Date().toISOString()
+})
+.eq("id",id);
+
+
+if(r.error){
+
+alert("Status Update Error: "+r.error.message);
+
+return;
+
+}
+
+alert("Status successfully update हो गया।");
+
+const session=await sb.auth.getSession();
+
+const uid=session.data.session?.user?.id;
+
+if(uid){
+
+loadComplaints(uid);
+
+}
+
+}
+
+
+/* LOGOUT */
+
+async function logout(){
+
+await sb.auth.signOut();
+
+location.reload();
+
+}
+
+
+/* KEEP LOGIN AFTER REFRESH */
+
+sb.auth.getSession().then(async r=>{
+
+const u=r.data.session?.user;
+
+if(!u)return;
+
+const v=await sb
+.from("profiles")
+.select("id,role")
+.eq("id",u.id)
+.eq("role","vendor")
+.maybeSingle();
+
+if(!v.error && v.data){
+
+$("login").classList.add("hidden");
+
+$("panel").classList.remove("hidden");
+
+$("who").textContent="Vendor: "+u.email;
+
+loadComplaints(u.id);
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
