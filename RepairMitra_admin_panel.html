@@ -48,4 +48,19 @@ async function assign(id){
  alert("Vendor successfully assign हो गया।");load();
 }
 async function logout(){await sb.auth.signOut();location.reload();}
-</script></body></html>
+sb.auth.getSession().then(async r=>{
+  const u=r.data.session?.user;
+  if(!u)return;
+
+  const a=await sb.from("admins")
+    .select("id")
+    .eq("id",u.id)
+    .maybeSingle();
+
+  if(!a.error && a.data){
+    $("login").classList.add("hidden");
+    $("panel").classList.remove("hidden");
+    $("who").textContent="Admin: "+u.email;
+    load();
+  }
+});</script></body></html>
