@@ -1,40 +1,653 @@
 <!doctype html>
 <html lang="hi">
-
 <head>
-
 <meta charset="utf-8">
-
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>RepairMitra Admin Panel</title>
 
 <style>
-
-*{
-box-sizing:border-box
-}
+*{box-sizing:border-box}
 
 body{
-font-family:Arial,Helvetica,sans-serif;
-margin:0;
-background:#f4f7fb;
-color:#172033
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f4f7fb;
+  color:#172033
 }
 
 .wrap{
-max-width:800px;
-margin:auto;
-padding:15px
+  max-width:850px;
+  margin:auto;
+  padding:16px
 }
 
-.header{
-background:linear-gradient(135deg,#172033,#344054);
-color:white;
-padding:22px;
-border-radius:20px;
+.card{
+  background:#fff;
+  padding:20px;
+  margin:14px 0;
+  border-radius:18px;
+  box-shadow:0 5px 20px #0001
+}
+
+h1,h2{
+  margin-top:0
+}
+
+input,select,button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border-radius:10px;
+  font-size:16px;
+  box-sizing:border-box
+}
+
+input,select{
+  border:1px solid #ccd4df;
+  background:white
+}
+
+button{
+  border:0;
+  background:#1769e0;
+  color:white;
+  font-weight:bold;
+  cursor:pointer
+}
+
+button:disabled{
+  opacity:.6
+}
+
+.gray{
+  background:#e9eef7;
+  color:#172033
+}
+
+.green{
+  background:#087443;
+  color:white
+}
+
+.red{
+  background:#b42318;
+  color:white
+}
+
+.hidden{
+  display:none
+}
+
+.small{
+  font-size:13px;
+  color:#667085
+}
+
+.msg{
+  display:none;
+  padding:12px;
+  margin:10px 0;
+  border-radius:10px;
+  line-height:1.5
+}
+
+.err{
+  background:#fde8e8;
+  color:#a12626
+}
+
+.ok{
+  background:#e5f7ea;
+  color:#176b36
+}
+
+.item{
+  border:1px solid #dfe5ed;
+  padding:16px;
+  margin:12px 0;
+  border-radius:14px;
+  background:#fff
+}
+
+.vendor-box{
+  background:#f5f8fc;
+  padding:13px;
+  border-radius:12px;
+  margin-top:10px
+}
+
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:20px;
+  background:#e8f1ff;
+  color:#1769e0;
+  font-size:13px;
+  font-weight:bold
+}
+
+.badge.green{
+  background:#e5f7ea;
+  color:#087443
+}
+
+.empty{
+  padding:15px;
+  background:#f5f8fc;
+  border-radius:12px;
+  color:#667085
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<!-- HEADER -->
+
+<div class="card">
+
+<h1>RepairMitra 🛠️</h1>
+
+<p>
+<b>Admin Panel</b>
+</p>
+
+<p id="who" class="small"></p>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div class="card" id="login">
+
+<h2>🔐 Admin Login</h2>
+
+<input
+id="email"
+type="email"
+placeholder="Admin Email">
+
+<input
+id="pass"
+type="password"
+placeholder="Password">
+
+<button onclick="login()">
+Admin Login
+</button>
+
+<div id="msg" class="msg err"></div>
+
+</div>
+
+
+<!-- ADMIN PANEL -->
+
+<div id="panel" class="hidden">
+
+
+<!-- VENDORS -->
+
+<div class="card">
+
+<h2>👨‍🔧 Vendor Management</h2>
+
+<p class="small">
+Registered Vendor accounts यहाँ दिखाई देंगे।
+</p>
+
+<div id="vendors">
+Loading Vendors...
+</div>
+
+</div>
+
+
+<!-- COMPLAINTS -->
+
+<div class="card">
+
+<h2>📋 Customer Complaints</h2>
+
+<p class="small">
+Complaint को किसी registered Vendor को assign करें।
+</p>
+
+<div id="list">
+Loading Complaints...
+</div>
+
+</div>
+
+
+<!-- LOGOUT -->
+
+<div class="card">
+
+<button
+class="gray"
+onclick="logout()">
+🚪 Logout
+</button>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const sb=window.supabase.createClient(
+
+"https://rqnmshqrwntxilwnhqwa.supabase.co",
+
+"sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"
+
+);
+
+const $=id=>document.getElementById(id);
+
+
+/* MESSAGE */
+
+function showMsg(text,ok=false){
+
+const box=$("msg");
+
+box.textContent=text;
+
+box.className="msg "+(ok?"ok":"err");
+
+box.style.display="block";
+
+}
+
+
+/* LOGIN */
+
+async function login(){
+
+const email=$("email").value.trim();
+
+const password=$("pass").value;
+
+if(!email||!password){
+
+return showMsg(
+"Email और Password भरें।"
+);
+
+}
+
+const r=await sb.auth.signInWithPassword({
+
+email:email,
+password:password
+
+});
+
+if(r.error){
+
+return showMsg(
+r.error.message
+);
+
+}
+
+const u=r.data.user;
+
+
+/* ADMIN CHECK */
+
+const a=await sb
+.from("admins")
+.select("id")
+.eq("id",u.id)
+.maybeSingle();
+
+if(a.error||!a.data){
+
+await sb.auth.signOut();
+
+return showMsg(
+"यह account Admin नहीं है।"
+);
+
+}
+
+
+/* SHOW PANEL */
+
+$("login").classList.add("hidden");
+
+$("panel").classList.remove("hidden");
+
+$("who").textContent=
+"Admin: "+u.email;
+
+loadVendors();
+
+loadComplaints();
+
+}
+
+
+/* LOAD VENDORS */
+
+async function loadVendors(){
+
+const r=await sb
+.from("profiles")
+.select("id,email,role")
+.eq("role","vendor")
+.order("email",{ascending:true});
+
+
+if(r.error){
+
+$("vendors").innerHTML=
+'<div class="empty">Vendor Error: '+
+escapeHtml(r.error.message)+
+'</div>';
+
+return;
+
+}
+
+
+if(!r.data.length){
+
+$("vendors").innerHTML=
+'<div class="empty">'+
+"अभी कोई Vendor registered नहीं है।"+
+'</div>';
+
+return;
+
+}
+
+
+$("vendors").innerHTML=r.data.map(v=>`
+
+<div class="item">
+
+<b>👨‍🔧 ${escapeHtml(v.email||"Vendor")}</b>
+
+<div class="vendor-box">
+
+<div>
+<b>Email:</b>
+${escapeHtml(v.email||"-")}
+</div>
+
+<div style="margin-top:7px">
+<b>Vendor ID:</b>
+${escapeHtml(v.id)}
+</div>
+
+<div style="margin-top:7px">
+<span class="badge green">
+Vendor
+</span>
+</div>
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* LOAD COMPLAINTS */
+
+async function loadComplaints(){
+
+const c=await sb
+.from("complaints")
+.select(
+"id,brand,model,phone,issue,address,status,vendor_id,created_at"
+)
+.order(
+"created_at",
+{ascending:false}
+);
+
+
+if(c.error){
+
+$("list").innerHTML=
+'<div class="empty">Complaint Error: '+
+escapeHtml(c.error.message)+
+'</div>';
+
+return;
+
+}
+
+
+const v=await sb
+.from("profiles")
+.select("id,email,role")
+.eq("role","vendor")
+.order("email",{ascending:true});
+
+
+if(v.error){
+
+$("list").innerHTML=
+'<div class="empty">Vendor Error: '+
+escapeHtml(v.error.message)+
+'</div>';
+
+return;
+
+}
+
+
+if(!c.data.length){
+
+$("list").innerHTML=
+'<div class="empty">'+
+"अभी कोई complaint नहीं है।"+
+'</div>';
+
+return;
+
+}
+
+
+$("list").innerHTML=c.data.map(x=>`
+
+<div class="item">
+
+<h3>
+#${x.id} — ${escapeHtml(x.brand)} ${escapeHtml(x.model)}
+</h3>
+
+<p>
+<b>Status:</b>
+<span class="badge">
+${escapeHtml(x.status||"Pending")}
+</span>
+</p>
+
+<p>
+<b>🔧 Problem:</b>
+${escapeHtml(x.issue)}
+</p>
+
+<p>
+<b>📞 Phone:</b>
+${escapeHtml(x.phone)}
+</p>
+
+<p>
+<b>📍 Address:</b>
+${escapeHtml(x.address)}
+</p>
+
+<div class="vendor-box">
+
+<b>👨‍🔧 Vendor Assign करें</b>
+
+<select id="v${x.id}">
+
+<option value="">
+Vendor चुनें
+</option>
+
+${v.data.map(y=>`
+
+<option
+value="${escapeHtml(y.id)}"
+${y.id===x.vendor_id?"selected":""}>
+
+${escapeHtml(y.email||"Vendor")}
+
+</option>
+
+`).join("")}
+
+</select>
+
+<button
+class="green"
+onclick="assign(${x.id})">
+
+👨‍🔧 Vendor Assign करें
+
+</button>
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* ASSIGN VENDOR */
+
+async function assign(id){
+
+const vendor=$("v"+id).value;
+
+if(!vendor){
+
+return alert(
+"पहले Vendor चुनें।"
+);
+
+}
+
+
+const r=await sb
+.from("complaints")
+.update({
+
+vendor_id:vendor,
+
+status:"Assigned",
+
+updated_at:new Date().toISOString()
+
+})
+.eq("id",id);
+
+
+if(r.error){
+
+return alert(
+"Assign Error: "+
+r.error.message
+);
+
+}
+
+
+alert(
+"✅ Vendor successfully assign हो गया।"
+);
+
+loadComplaints();
+
+}
+
+
+/* ESCAPE HTML */
+
+function escapeHtml(value){
+
+return String(value??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+/* LOGOUT */
+
+async function logout(){
+
+await sb.auth.signOut();
+
+location.reload();
+
+}
+
+
+/* KEEP LOGIN */
+
+sb.auth.getSession().then(async r=>{
+
+const u=r.data.session?.user;
+
+if(!u)return;
+
+
+const a=await sb
+.from("admins")
+.select("id")
+.eq("id",u.id)
+.maybeSingle();
+
+
+if(!a.error&&a.data){
+
+$("login").classList.add("hidden");
+
+$("panel").classList.remove("hidden");
+
+$("who").textContent=
+"Admin: "+u.email;
+
+loadVendors();
+
+loadComplaints();
+
+}
+
+});
+
+</script>
+
+</body>
+</html>border-radius:20px;
 margin-bottom:15px
 }
 
