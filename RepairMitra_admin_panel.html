@@ -1,40 +1,998 @@
 <!doctype html>
-<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RepairMitra Admin</title>
+<html lang="hi">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>RepairMitra Admin Panel</title>
+
 <style>
-body{font-family:Arial;margin:0;background:#f4f7fb;color:#172033}.wrap{max-width:760px;margin:auto;padding:16px}
-.card{background:#fff;padding:20px;margin:14px 0;border-radius:18px;box-shadow:0 5px 20px #0001}
-input,select,button{width:100%;padding:13px;margin:7px 0;border-radius:10px;font-size:16px;box-sizing:border-box}
-input,select{border:1px solid #ccd4df}button{border:0;background:#1769e0;color:white;font-weight:bold}.gray{background:#e9eef7;color:#172033}
-.hidden{display:none}.item{border:1px solid #dfe5ed;padding:15px;margin:12px 0;border-radius:14px}.msg{padding:12px;margin:10px 0;border-radius:10px;display:none}
-.err{background:#fde8e8;color:#a12626}.small{font-size:13px;color:#667085}
-</style></head><body><div class="wrap">
-<div class="card"><h1>RepairMitra 🛠️</h1><p>Admin Panel</p><p id="who" class="small"></p></div>
-<div class="card" id="login"><h2>Admin Login</h2>
-<input id="email" type="email" placeholder="Admin Email"><input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button><div id="msg" class="msg err"></div></div>
-<div id="panel" class="hidden"><div class="card"><h2>📋 Customer Complaints</h2><div id="list">Loading...</div></div>
-<div class="card"><button class="gray" onclick="logout()">Logout</button></div></div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const sb=supabase.createClient("https://rqnmshqrwntxilwnhqwa.supabase.co","sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v");
-const $=x=>document.getElementById(x);
-function error(t){$("msg").textContent=t;$("msg").style.display="block";}
-async function login(){
- const email=$("email").value.trim(),password=$("pass").value;
- const r=await sb.auth.signInWithPassword({email,password});
- if(r.error)return error(r.error.message);
- const a=await sb.from("admins").select("id").eq("id",r.data.user.id).maybeSingle();
- if(a.error||!a.data){await sb.auth.signOut();return error("यह account Admin नहीं है।");}
- $("login").classList.add("hidden");$("panel").classList.remove("hidden");$("who").textContent="Admin: "+email;load();
+
+*{
+box-sizing:border-box
 }
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+margin:0;
+background:#f4f7fb;
+color:#172033
+}
+
+.wrap{
+max-width:800px;
+margin:auto;
+padding:15px
+}
+
+.header{
+background:linear-gradient(135deg,#172033,#344054);
+color:white;
+padding:22px;
+border-radius:20px;
+margin-bottom:15px
+}
+
+.logo{
+font-size:27px;
+font-weight:bold
+}
+
+.card{
+background:white;
+padding:20px;
+margin:14px 0;
+border-radius:18px;
+box-shadow:0 5px 20px #0000000d
+}
+
+input,
+select,
+button,
+textarea{
+width:100%;
+padding:13px;
+margin:7px 0;
+border-radius:10px;
+font-size:16px;
+box-sizing:border-box
+}
+
+input,
+select,
+textarea{
+border:1px solid #ccd4df;
+background:white
+}
+
+textarea{
+min-height:80px;
+resize:vertical
+}
+
+button{
+border:0;
+background:#1769e0;
+color:white;
+font-weight:bold;
+cursor:pointer
+}
+
+button:disabled{
+opacity:.6
+}
+
+.gray{
+background:#e9eef7;
+color:#172033
+}
+
+.hidden{
+display:none!important
+}
+
+.item{
+border:1px solid #dfe5ed;
+padding:17px;
+margin:13px 0;
+border-radius:16px;
+background:#fff
+}
+
+.item h3{
+margin-top:0
+}
+
+.info{
+background:#f5f8fc;
+border-radius:12px;
+padding:12px;
+margin:10px 0;
+line-height:1.6
+}
+
+.msg{
+padding:12px;
+margin:10px 0;
+border-radius:10px;
+display:none;
+line-height:1.5
+}
+
+.err{
+background:#fde8e8;
+color:#a12626
+}
+
+.ok{
+background:#e5f7ea;
+color:#176b36
+}
+
+.small{
+font-size:13px;
+color:#667085
+}
+
+.status{
+display:inline-block;
+padding:6px 11px;
+border-radius:20px;
+font-size:13px;
+font-weight:bold
+}
+
+.status-pending{
+background:#fff4d6;
+color:#9a6700
+}
+
+.status-assigned{
+background:#e8f1ff;
+color:#1769e0
+}
+
+.status-accepted{
+background:#e7f7ee;
+color:#16794c
+}
+
+.status-repairing{
+background:#f0eaff;
+color:#6842c2
+}
+
+.status-completed{
+background:#dff7e7;
+color:#087443
+}
+
+.status-norepair{
+background:#fde8e8;
+color:#a12626
+}
+
+.empty{
+text-align:center;
+padding:25px;
+color:#667085
+}
+
+.footer{
+text-align:center;
+padding:25px 5px;
+color:#667085;
+font-size:13px
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="wrap">
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+<div class="logo">
+RepairMitra 🛠️
+</div>
+
+<div>
+Admin Panel
+</div>
+
+<p id="who" class="small"></p>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div
+class="card"
+id="login"
+>
+
+<h2>
+🔐 Admin Login
+</h2>
+
+<p class="small">
+Admin account से login करके customer complaints manage करें।
+</p>
+
+<input
+id="email"
+type="email"
+placeholder="Admin Email"
+autocomplete="email"
+>
+
+<input
+id="pass"
+type="password"
+placeholder="Password"
+autocomplete="current-password"
+>
+
+<button
+id="loginBtn"
+onclick="login()"
+>
+Login करें
+</button>
+
+<div
+id="msg"
+class="msg err"
+></div>
+
+</div>
+
+
+<!-- ADMIN PANEL -->
+
+<div
+id="panel"
+class="hidden"
+>
+
+
+<!-- SUMMARY -->
+
+<div class="card">
+
+<h2>
+📊 Complaint Management
+</h2>
+
+<div class="info">
+
+📋 यहाँ सभी customer complaints दिखाई देंगी।<br>
+
+👨‍🔧 आप किसी भी complaint को Vendor को assign कर सकते हैं।<br>
+
+🔄 Vendor द्वारा बदला गया status भी यहाँ दिखाई देगा।
+
+</div>
+
+<button
+onclick="load()"
+>
+🔄 Complaints Refresh करें
+</button>
+
+</div>
+
+
+<!-- COMPLAINT LIST -->
+
+<div class="card">
+
+<h2>
+📋 Customer Complaints
+</h2>
+
+<div id="list">
+
+Loading...
+
+</div>
+
+</div>
+
+
+<!-- LOGOUT -->
+
+<div class="card">
+
+<button
+class="gray"
+onclick="logout()"
+>
+🚪 Logout
+</button>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+RepairMitra 🛠️<br>
+
+Admin Management Panel
+
+</div>
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+
+/* ==========================================
+SUPABASE
+========================================== */
+
+const sb =
+window.supabase.createClient(
+
+"https://rqnmshqrwntxilwnhqwa.supabase.co",
+
+"sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"
+
+);
+
+
+/* ==========================================
+SHORTCUT
+========================================== */
+
+const $ =
+x => document.getElementById(x);
+
+
+/* ==========================================
+MESSAGE
+========================================== */
+
+function showMessage(
+text,
+ok=false
+){
+
+$("msg").textContent=text;
+
+$("msg").className=
+"msg "+(ok?"ok":"err");
+
+$("msg").style.display=
+"block";
+
+}
+
+
+/* ==========================================
+STATUS CLASS
+========================================== */
+
+function statusClass(status){
+
+if(status==="Assigned"){
+return "status-assigned";
+}
+
+if(status==="Accepted"){
+return "status-accepted";
+}
+
+if(status==="Repairing"){
+return "status-repairing";
+}
+
+if(status==="Completed"){
+return "status-completed";
+}
+
+if(status==="No Repair"){
+return "status-norepair";
+}
+
+return "status-pending";
+
+}
+
+
+/* ==========================================
+LOGIN
+========================================== */
+
+async function login(){
+
+const email =
+$("email").value.trim();
+
+const password =
+$("pass").value;
+
+
+if(!email || !password){
+
+return showMessage(
+"Email और Password भरें।"
+);
+
+}
+
+
+const button =
+$("loginBtn");
+
+button.disabled=true;
+
+button.textContent=
+"Login हो रहा है...";
+
+
+const r =
+await sb.auth.signInWithPassword({
+
+email:email,
+
+password:password
+
+});
+
+
+button.disabled=false;
+
+button.textContent=
+"Login करें";
+
+
+if(r.error){
+
+return showMessage(
+r.error.message
+);
+
+}
+
+
+const user =
+r.data.user;
+
+
+/* CHECK ADMIN */
+
+const a =
+await sb
+.from("admins")
+.select("id")
+.eq("id",user.id)
+.maybeSingle();
+
+
+if(a.error || !a.data){
+
+await sb.auth.signOut();
+
+return showMessage(
+"यह account Admin नहीं है।"
+);
+
+}
+
+
+showPanel(user);
+
+}
+
+
+/* ==========================================
+SHOW ADMIN PANEL
+========================================== */
+
+function showPanel(user){
+
+$("login")
+.classList.add("hidden");
+
+$("panel")
+.classList.remove("hidden");
+
+$("who").textContent=
+"Admin: "+user.email;
+
+load();
+
+}
+
+
+/* ==========================================
+LOAD COMPLAINTS
+========================================== */
+
 async function load(){
- const c=await sb.from("complaints").select("id,brand,model,phone,issue,address,status,vendor_id,created_at").order("created_at",{ascending:false});
- if(c.error){$("list").textContent="Database Error: "+c.error.message;return;}
- const v=await sb.from("profiles").select("id,full_name,phone").eq("role","vendor");
- if(v.error){$("list").textContent="Vendor Error: "+v.error.message;return;}
- if(!c.data.length){$("list").textContent="अभी कोई complaint नहीं है।";return;}
+
+$("list").innerHTML=
+'<div class="empty">⏳ Complaints Loading...</div>';
+
+
+/* LOAD COMPLAINTS */
+
+const c =
+await sb
+.from("complaints")
+.select(
+"id,brand,model,phone,issue,description,address,status,vendor_id,vendor_charge,vendor_note,created_at,updated_at"
+)
+.order(
+"created_at",
+{
+ascending:false
+}
+);
+
+
+if(c.error){
+
+$("list").innerHTML=
+'<div class="msg err" style="display:block">'+
+"Database Error: "+
+escapeHtml(c.error.message)+
+"</div>";
+
+return;
+
+}
+
+
+/* LOAD VENDORS */
+
+const v =
+await sb
+.from("profiles")
+.select(
+"id,full_name,phone"
+)
+.eq(
+"role",
+"vendor"
+);
+
+
+if(v.error){
+
+$("list").innerHTML=
+'<div class="msg err" style="display:block">'+
+"Vendor Error: "+
+escapeHtml(v.error.message)+
+"</div>";
+
+return;
+
+}
+
+
+/* NO COMPLAINT */
+
+if(!c.data || !c.data.length){
+
+$("list").innerHTML=`
+
+<div class="empty">
+
+<div style="font-size:42px">
+📭
+</div>
+
+<h3>
+अभी कोई complaint नहीं है।
+</h3>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+/* DISPLAY */
+
+$("list").innerHTML =
+c.data.map(x=>{
+
+const status =
+x.status || "Pending";
+
+
+const created =
+x.created_at
+?
+new Date(
+x.created_at
+).toLocaleString(
+"hi-IN",
+{
+dateStyle:"medium",
+timeStyle:"short"
+}
+)
+:
+"";
+
+
+const updated =
+x.updated_at
+?
+new Date(
+x.updated_at
+).toLocaleString(
+"hi-IN",
+{
+dateStyle:"medium",
+timeStyle:"short"
+}
+)
+:
+"";
+
+
+return `
+
+<div class="item">
+
+
+<h3>
+
+📱 #${escapeHtml(x.id)}
+—
+${escapeHtml(x.brand)}
+${escapeHtml(x.model)}
+
+</h3>
+
+
+<div>
+
+<b>Status:</b>
+
+<span class="status ${statusClass(status)}">
+
+${escapeHtml(status)}
+
+</span>
+
+</div>
+
+
+<div class="info">
+
+<b>🔧 Problem:</b>
+${escapeHtml(x.issue)}
+
+<br>
+
+<b>📞 Phone:</b>
+${escapeHtml(x.phone)}
+
+<br>
+
+<b>📍 Address:</b>
+${escapeHtml(x.address)}
+
+</div>
+
+
+<div class="info">
+
+<b>📝 Customer Description:</b>
+
+<br>
+
+${escapeHtml(
+x.description ||
+"कोई description नहीं"
+)}
+
+</div>
+
+
+<div class="small">
+
+📅 Complaint:
+${escapeHtml(created)}
+
+<br>
+
+🔄 Last Update:
+${escapeHtml(
+updated || "अभी तक नहीं"
+)}
+
+</div>
+
+
+<hr>
+
+
+<h3>
+👨‍🔧 Vendor Assignment
+</h3>
+
+
+<select id="v${x.id}">
+
+<option value="">
+Vendor चुनें
+</option>
+
+${v.data.map(y=>`
+
+<option
+value="${escapeHtml(y.id)}"
+${y.id===x.vendor_id?"selected":""}
+>
+
+${escapeHtml(
+y.full_name || "Vendor"
+)}
+
+${y.phone
+?
+" - "+escapeHtml(y.phone)
+:
+""}
+
+</option>
+
+`).join("")}
+
+</select>
+
+
+<button
+onclick="assign(${x.id})"
+>
+
+${x.vendor_id
+?
+"🔄 Vendor Change / Update"
+:
+"👨‍🔧 Vendor Assign करें"}
+
+</button>
+
+
+${
+x.vendor_charge != null
+?
+`
+
+<div class="info">
+
+<b>💰 Vendor Charge:</b>
+
+₹${escapeHtml(
+x.vendor_charge
+)}
+
+<br>
+
+<b>📝 Vendor Note:</b>
+
+${escapeHtml(
+x.vendor_note || "कोई note नहीं"
+)}
+
+</div>
+
+`
+:
+""
+}
+
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* ==========================================
+ASSIGN VENDOR
+========================================== */
+
+async function assign(id){
+
+const vendor =
+$("v"+id).value;
+
+
+if(!vendor){
+
+return alert(
+"पहले Vendor चुनें।"
+);
+
+}
+
+
+const button =
+event?.currentTarget;
+
+
+if(button){
+
+button.disabled=true;
+
+button.textContent=
+"Assign हो रहा है...";
+
+}
+
+
+const r =
+await sb
+.from("complaints")
+.update({
+
+vendor_id:vendor,
+
+status:"Assigned",
+
+updated_at:
+new Date().toISOString()
+
+})
+.eq(
+"id",
+id
+);
+
+
+if(r.error){
+
+if(button){
+
+button.disabled=false;
+
+button.textContent=
+"Vendor Assign करें";
+
+}
+
+return alert(
+"Assign Error: "+
+r.error.message
+);
+
+}
+
+
+alert(
+"✅ Vendor successfully assign हो गया।"
+);
+
+
+load();
+
+}
+
+
+/* ==========================================
+ESCAPE HTML
+========================================== */
+
+function escapeHtml(value){
+
+return String(
+value ?? ""
+)
+
+.replace(
+/&/g,
+"&amp;"
+)
+
+.replace(
+/</g,
+"&lt;"
+)
+
+.replace(
+/>/g,
+"&gt;"
+)
+
+.replace(
+/"/g,
+"&quot;"
+)
+
+.replace(
+/'/g,
+"&#039;"
+);
+
+}
+
+
+/* ==========================================
+LOGOUT
+========================================== */
+
+async function logout(){
+
+await sb.auth.signOut();
+
+location.reload();
+
+}
+
+
+/* ==========================================
+KEEP LOGIN AFTER REFRESH
+========================================== */
+
+sb.auth.getSession()
+.then(
+async r=>{
+
+const user =
+r.data.session?.user;
+
+if(!user){
+return;
+}
+
+
+const a =
+await sb
+.from("admins")
+.select("id")
+.eq("id",user.id)
+.maybeSingle();
+
+
+if(!a.error && a.data){
+
+showPanel(user);
+
+}
+
+});
+
+
+</script>
+
+</body>
+
+</html> if(!c.data.length){$("list").textContent="अभी कोई complaint नहीं है।";return;}
  $("list").innerHTML=c.data.map(x=>`<div class="item">
 <b>#${x.id} — ${x.brand} ${x.model}</b><br>Status: ${x.status||"Pending"}
 <p><b>Problem:</b> ${x.issue}</p><p><b>Phone:</b> ${x.phone}</p><p><b>Address:</b> ${x.address}</p>
