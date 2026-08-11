@@ -41,6 +41,394 @@ body{
   font-weight:bold
 }
 
+.btn{
+  display:inline-block;
+  text-decoration:none;
+  border:0;
+  padding:14px 22px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  margin:5px;
+  cursor:pointer
+}
+
+.primary{
+  background:white;
+  color:#1769e0
+}
+
+.secondary{
+  background:#0b3c8c;
+  color:white
+}
+
+.hero{
+  margin-top:18px;
+  background:linear-gradient(135deg,#1769e0,#0d47a1);
+  color:white;
+  padding:42px 25px;
+  border-radius:24px;
+  text-align:center;
+  box-shadow:0 10px 30px #1769e033
+}
+
+.hero h1{
+  font-size:38px;
+  margin:0 0 12px
+}
+
+.hero p{
+  font-size:18px;
+  line-height:1.6;
+  margin:8px 0 22px
+}
+
+.section{
+  margin-top:20px
+}
+
+.section h2{
+  text-align:center;
+  font-size:26px
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  box-shadow:0 5px 20px #0000000d
+}
+
+.icon{
+  font-size:32px
+}
+
+.card h3{
+  margin:10px 0 7px
+}
+
+.card p{
+  color:#667085;
+  line-height:1.5;
+  margin:0
+}
+
+.steps{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px
+}
+
+.step{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  text-align:center
+}
+
+.number{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#e8f1ff;
+  color:#1769e0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:auto;
+  font-size:20px;
+  font-weight:bold
+}
+
+.cta{
+  margin-top:20px;
+  background:#172033;
+  color:white;
+  padding:28px 20px;
+  border-radius:20px;
+  text-align:center
+}
+
+.cta h2{
+  margin-top:0
+}
+
+.footer{
+  text-align:center;
+  padding:25px 5px;
+  color:#667085;
+  font-size:13px
+}
+
+@media(max-width:600px){
+
+  .hero h1{
+    font-size:30px
+  }
+
+  .grid{
+    grid-template-columns:1fr
+  }
+
+  .steps{
+    grid-template-columns:1fr
+  }
+
+  .nav{
+    top:5px
+  }
+
+  .nav .btn{
+    padding:10px 12px;
+    font-size:14px
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<!-- NAVIGATION -->
+
+<div class="nav">
+
+  <div class="logo">
+    RepairMitra 🛠️
+  </div>
+
+  <a class="btn primary" href="customer.html">
+    Customer Login
+  </a>
+
+</div>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+  <h1>
+    📱 मोबाइल रिपेयरिंग अब आसान
+  </h1>
+
+  <p>
+    घर बैठे मोबाइल रिपेयरिंग सेवा बुक करें।<br>
+    अपनी complaint दर्ज करें और repair status online देखें।
+  </p>
+
+  <a class="btn primary" href="customer.html">
+    🔧 Repair Book करें
+  </a>
+
+  <a class="btn secondary" href="customer.html">
+    👤 Customer Login
+  </a>
+
+</section>
+
+
+<!-- SERVICES -->
+
+<section class="section">
+
+  <h2>🛠️ हमारी Repair Services</h2>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="icon">📱</div>
+      <h3>Display / Touch</h3>
+      <p>
+        टूटा हुआ display या touch खराब होने पर repair service।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">🔋</div>
+      <h3>Battery</h3>
+      <p>
+        Battery जल्दी खत्म होना या battery damage की समस्या।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">🔌</div>
+      <h3>Charging</h3>
+      <p>
+        Charging port और charging related problems की service।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">📡</div>
+      <h3>Network / SIM</h3>
+      <p>
+        Network, SIM और connectivity से जुड़ी समस्याओं की service।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">🔊</div>
+      <h3>Speaker / Mic</h3>
+      <p>
+        Speaker और microphone की खराबी की repair service।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">📷</div>
+      <h3>Camera</h3>
+      <p>
+        Camera काम न करने या camera related problems की service।
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- HOW IT WORKS -->
+
+<section class="section">
+
+  <h2>⚡ RepairMitra कैसे काम करता है?</h2>
+
+  <div class="steps">
+
+    <div class="step">
+
+      <div class="number">1</div>
+
+      <h3>Complaint दर्ज करें</h3>
+
+      <p>
+        अपनी mobile problem और address की जानकारी दें।
+      </p>
+
+    </div>
+
+
+    <div class="step">
+
+      <div class="number">2</div>
+
+      <h3>Technician Assign</h3>
+
+      <p>
+        आपकी complaint को technician/vendor को assign किया जाएगा।
+      </p>
+
+    </div>
+
+
+    <div class="step">
+
+      <div class="number">3</div>
+
+      <h3>Repair और Status</h3>
+
+      <p>
+        Repair progress देखें और complaint का status online track करें।
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- FEATURES -->
+
+<section class="section">
+
+  <h2>⭐ RepairMitra क्यों?</h2>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="icon">⚡</div>
+      <h3>Fast Service</h3>
+      <p>
+        जल्दी complaint processing और repair updates।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">👨‍🔧</div>
+      <h3>Repair Technician</h3>
+      <p>
+        आपकी complaint को assigned repair technician handle करता है।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">📋</div>
+      <h3>Online Tracking</h3>
+      <p>
+        अपनी complaint का current status online देखें।
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">🏠</div>
+      <h3>Doorstep Service</h3>
+      <p>
+        Service और pickup address की सुविधा के साथ repair request दर्ज करें।
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CTA -->
+
+<section class="cta">
+
+  <h2>📱 मोबाइल में परेशानी है?</h2>
+
+  <p>
+    आज ही RepairMitra पर अपनी repair complaint दर्ज करें।
+  </p>
+
+  <a class="btn primary" href="customer.html">
+    🔧 अभी Repair Book करें
+  </a>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+  RepairMitra 🛠️<br>
+  Mobile Repair Service Platform
+
+</div>
+
+</div>
+
+</body>
+</html>
+.logo{
+  color:#1769e0;
+  font-size:23px;
+  font-weight:bold
+}
+
 .nav button{
   border:0;
   background:#1769e0;
