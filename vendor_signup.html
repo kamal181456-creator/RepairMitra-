@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>RepairMitra - Vendor Signup</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f4f7fb;
+  color:#172033
+}
+
+.wrap{
+  max-width:620px;
+  margin:auto;
+  padding:16px
+}
+
+.card{
+  background:white;
+  padding:22px;
+  margin:15px 0;
+  border-radius:20px;
+  box-shadow:0 5px 20px #0000000d
+}
+
+.header{
+  background:linear-gradient(135deg,#087443,#064f30);
+  color:white;
+  padding:28px 20px;
+  border-radius:20px;
+  text-align:center
+}
+
+.logo{
+  font-size:28px;
+  font-weight:bold
+}
+
+input,select,textarea,button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border-radius:10px;
+  font-size:16px
+}
+
+input,select,textarea{
+  border:1px solid #ccd4df;
+  background:white
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical
+}
+
+button{
+  border:0;
+  background:#087443;
+  color:white;
+  font-weight:bold;
+  cursor:pointer
+}
+
+button:disabled{
+  opacity:.6
+}
+
+.login-btn{
+  background:#1769e0
+}
+
+.msg{
+  display:none;
+  padding:13px;
+  margin:10px 0;
+  border-radius:10px;
+  line-height:1.5
+}
+
+.ok{
+  background:#e5f7ea;
+  color:#176b36
+}
+
+.err{
+  background:#fde8e8;
+  color:#a12626
+}
+
+.info{
+  background:#eef6ff;
+  color:#17518c;
+  padding:13px;
+  border-radius:10px;
+  line-height:1.5
+}
+
+.small{
+  font-size:13px;
+  color:#667085
+}
+
+a{
+  color:#1769e0;
+  text-decoration:none;
+  font-weight:bold
+}
+
+.footer{
+  text-align:center;
+  padding:20px;
+  color:#667085;
+  font-size:13px
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<!-- HEADER -->
+
+<div class="header">
+
+<div class="logo">
+RepairMitra 🛠️
+</div>
+
+<p>
+👨‍🔧 Vendor Registration
+</p>
+
+<p>
+RepairMitra के साथ repair technician के रूप में जुड़ें।
+</p>
+
+</div>
+
+
+<!-- SIGNUP -->
+
+<div class="card">
+
+<h2>➕ Vendor Signup</h2>
+
+<div class="info">
+📌 Registration के बाद आपका account Admin द्वारा verify किया जाएगा।
+</div>
+
+
+<input
+id="name"
+type="text"
+placeholder="पूरा नाम">
+
+
+<input
+id="phone"
+type="tel"
+placeholder="Mobile Number">
+
+
+<input
+id="email"
+type="email"
+placeholder="Email Address">
+
+
+<input
+id="password"
+type="password"
+placeholder="Password">
+
+
+<input
+id="confirmPassword"
+type="password"
+placeholder="Password दोबारा डालें">
+
+
+<select id="specialization">
+
+<option value="">
+Repair Specialization चुनें
+</option>
+
+<option>Mobile Hardware</option>
+<option>Mobile Software</option>
+<option>Display / Touch</option>
+<option>Charging / Battery</option>
+<option>Network / SIM</option>
+<option>Speaker / Mic</option>
+<option>Camera</option>
+<option>All Mobile Repair</option>
+<option>Other</option>
+
+</select>
+
+
+<textarea
+id="address"
+placeholder="अपना पूरा Address लिखें">
+</textarea>
+
+
+<button id="signupBtn">
+👨‍🔧 Vendor Account बनाएं
+</button>
+
+<div id="msg" class="msg"></div>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div class="card">
+
+<h3>पहले से Vendor Account है?</h3>
+
+<p class="small">
+अगर आपका Vendor account पहले से बना हुआ है तो सीधे Vendor Panel में Login करें।
+</p>
+
+<a
+class="login-btn"
+href="RepairMitra_vendor_panel.html">
+
+👨‍🔧 Vendor Login
+
+</a>
+
+</div>
+
+
+<!-- HOME -->
+
+<div class="card">
+
+<a href="index.html">
+🏠 RepairMitra Home पर वापस जाएँ
+</a>
+
+</div>
+
+
+<div class="footer">
+
+RepairMitra 🛠️<br>
+Vendor Registration System
+
+</div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const sb = window.supabase.createClient(
+"https://rqnmshqrwntxilwnhqwa.supabase.co",
+"sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"
+);
+
+const $ = id => document.getElementById(id);
+
+
+function showMsg(text,ok=false){
+
+const box=$("msg");
+
+box.textContent=text;
+
+box.className="msg "+(ok?"ok":"err");
+
+box.style.display="block";
+
+}
+
+
+$("signupBtn").onclick=async()=>{
+
+const name=$("name").value.trim();
+
+const phone=$("phone").value.trim();
+
+const email=$("email").value.trim();
+
+const password=$("password").value;
+
+const confirmPassword=$("confirmPassword").value;
+
+const specialization=$("specialization").value;
+
+const address=$("address").value.trim();
+
+
+/* VALIDATION */
+
+if(
+!name||
+!phone||
+!email||
+!password||
+!confirmPassword||
+!specialization||
+!address
+){
+
+return showMsg(
+"कृपया सभी जानकारी भरें।"
+);
+
+}
+
+
+if(password.length < 6){
+
+return showMsg(
+"Password कम से कम 6 characters का होना चाहिए।"
+);
+
+}
+
+
+if(password !== confirmPassword){
+
+return showMsg(
+"दोनों Password समान नहीं हैं।"
+);
+
+}
+
+
+const btn=$("signupBtn");
+
+btn.disabled=true;
+
+btn.textContent="Account बन रहा है...";
+
+
+/* CREATE AUTH USER */
+
+const r=await sb.auth.signUp({
+
+email:email,
+
+password:password,
+
+options:{
+data:{
+full_name:name,
+phone:phone,
+specialization:specialization,
+address:address
+}
+}
+
+});
+
+
+if(r.error){
+
+btn.disabled=false;
+
+btn.textContent="👨‍🔧 Vendor Account बनाएं";
+
+return showMsg(
+"Signup Error: "+r.error.message
+);
+
+}
+
+
+const user=r.data.user;
+
+
+/*
+IMPORTANT:
+Auth user बनने के बाद profile table में
+vendor information save करने की कोशिश।
+*/
+
+if(user){
+
+const p=await sb
+.from("profiles")
+.upsert({
+
+id:user.id,
+
+full_name:name,
+
+phone:phone,
+
+role:"vendor"
+
+});
+
+
+if(p.error){
+
+console.log(
+"Profile Error:",
+p.error.message
+);
+
+showMsg(
+"Account बन गया है, लेकिन Vendor Profile save नहीं हो पाई। Admin Panel से profile check करें।",
+true
+);
+
+}else{
+
+showMsg(
+"✅ Vendor Account सफलतापूर्वक बन गया है। Admin verification के बाद आप Vendor Panel में Login कर सकते हैं।",
+true
+);
+
+}
+
+}
+
+
+/* CLEAR FORM */
+
+$("name").value="";
+
+$("phone").value="";
+
+$("email").value="";
+
+$("password").value="";
+
+$("confirmPassword").value="";
+
+$("specialization").value="";
+
+$("address").value="";
+
+
+btn.disabled=false;
+
+btn.textContent="👨‍🔧 Vendor Account बनाएं";
+
+};
+
+</script>
+
+</body>
+</html>
