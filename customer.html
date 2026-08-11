@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="hi">
 <head>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -16,13 +17,13 @@ body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
   background:#f4f7fb;
-  color:#172033
+  color:#172033;
 }
 
 .wrap{
-  max-width:750px;
+  max-width:760px;
   margin:auto;
-  padding:14px
+  padding:15px;
 }
 
 /* HEADER */
@@ -30,11 +31,1575 @@ body{
 .header{
   background:linear-gradient(135deg,#1769e0,#0d47a1);
   color:white;
-  padding:22px 20px;
+  padding:22px;
   border-radius:20px;
   margin-bottom:15px;
-  box-shadow:0 8px 25px #1769e033
+  box-shadow:0 8px 25px #1769e033;
 }
+
+.header-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.logo{
+  font-size:27px;
+  font-weight:bold;
+}
+
+.tagline{
+  margin-top:6px;
+  font-size:14px;
+  opacity:.95;
+}
+
+.logout-top{
+  width:auto;
+  margin:0;
+  padding:9px 13px;
+  background:#ffffff22;
+  border:1px solid #ffffff55;
+}
+
+/* CARD */
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  margin:14px 0;
+  box-shadow:0 5px 20px #0000000d;
+}
+
+h2{
+  margin-top:0;
+}
+
+/* FORM */
+
+input,
+select,
+textarea,
+button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border-radius:10px;
+  font-size:16px;
+}
+
+input,
+select,
+textarea{
+  border:1px solid #ccd4df;
+  background:white;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+button{
+  border:0;
+  background:#1769e0;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.6;
+}
+
+.gray{
+  background:#e9eef7;
+  color:#172033;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* MESSAGE */
+
+.msg{
+  display:none;
+  padding:12px;
+  border-radius:10px;
+  margin:10px 0;
+  line-height:1.5;
+}
+
+.ok{
+  background:#e5f7ea;
+  color:#176b36;
+}
+
+.err{
+  background:#fde8e8;
+  color:#a12626;
+}
+
+.small{
+  font-size:13px;
+  color:#667085;
+}
+
+/* USER */
+
+.user-info{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.avatar{
+  width:52px;
+  height:52px;
+  min-width:52px;
+  border-radius:50%;
+  background:#e8f1ff;
+  color:#1769e0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:25px;
+}
+
+/* COMPLAINT */
+
+.complaint{
+  border:1px solid #e0e5ed;
+  border-radius:18px;
+  padding:17px;
+  margin:14px 0;
+  background:#fff;
+}
+
+.complaint-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.complaint h3{
+  margin:0 0 8px;
+}
+
+.row{
+  margin:9px 0;
+  line-height:1.5;
+}
+
+/* STATUS */
+
+.status{
+  display:inline-block;
+  padding:7px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+  background:#eef2ff;
+  color:#1769e0;
+}
+
+.status.Pending{
+  background:#fff4d6;
+  color:#9a6700;
+}
+
+.status.Assigned{
+  background:#e8f1ff;
+  color:#1769e0;
+}
+
+.status.Accepted{
+  background:#e7f7ee;
+  color:#16794c;
+}
+
+.status.Repairing{
+  background:#f0eaff;
+  color:#6842c2;
+}
+
+.status.Completed{
+  background:#dff7e7;
+  color:#087443;
+}
+
+.status.Cancelled,
+.status.NoRepair{
+  background:#fde8e8;
+  color:#a12626;
+}
+
+/* INFO */
+
+.info{
+  background:#f5f8fc;
+  border-radius:12px;
+  padding:13px;
+  margin-top:12px;
+}
+
+/* QUOTATION */
+
+.quotation{
+  background:#fff8e6;
+  border:2px solid #f0d58a;
+  border-radius:16px;
+  padding:16px;
+  margin-top:16px;
+}
+
+.quotation-title{
+  font-size:18px;
+  font-weight:bold;
+  color:#765300;
+  margin-bottom:8px;
+}
+
+.quotation-price{
+  font-size:30px;
+  font-weight:bold;
+  color:#9a6700;
+  margin:8px 0;
+}
+
+.quotation-note{
+  background:white;
+  border-radius:10px;
+  padding:12px;
+  margin-top:10px;
+  line-height:1.5;
+}
+
+.quote-pending{
+  background:#f5f8fc;
+  border:1px dashed #ccd4df;
+  border-radius:14px;
+  padding:14px;
+  margin-top:15px;
+  color:#667085;
+}
+
+/* TIMELINE */
+
+.timeline{
+  margin-top:18px;
+  padding:5px 0;
+}
+
+.timeline-title{
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.timeline-item{
+  display:flex;
+  position:relative;
+  min-height:48px;
+}
+
+.timeline-dot{
+  width:25px;
+  height:25px;
+  min-width:25px;
+  border-radius:50%;
+  background:#d9e0ea;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  color:#667085;
+  z-index:2;
+}
+
+.timeline-item.done .timeline-dot{
+  background:#1769e0;
+  color:white;
+}
+
+.timeline-line{
+  position:absolute;
+  left:11px;
+  top:25px;
+  width:3px;
+  height:38px;
+  background:#d9e0ea;
+}
+
+.timeline-item.done .timeline-line{
+  background:#1769e0;
+}
+
+.timeline-content{
+  padding-left:12px;
+  padding-bottom:22px;
+}
+
+.timeline-content b{
+  font-size:14px;
+}
+
+.timeline-content span{
+  display:block;
+  font-size:12px;
+  color:#667085;
+  margin-top:3px;
+}
+
+/* EMPTY */
+
+.empty{
+  text-align:center;
+  padding:25px 10px;
+  color:#667085;
+}
+
+/* LOADING */
+
+.loading{
+  text-align:center;
+  padding:20px;
+  color:#667085;
+}
+
+/* FOOTER */
+
+.footer{
+  text-align:center;
+  padding:25px 5px;
+  color:#667085;
+  font-size:13px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+  .header-top{
+    align-items:flex-start;
+  }
+
+  .logo{
+    font-size:23px;
+  }
+
+  .complaint-header{
+    flex-direction:column;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+<div class="header-top">
+
+<div>
+
+<div class="logo">
+RepairMitra 🛠️
+</div>
+
+<div class="tagline">
+📱 घर बैठे मोबाइल रिपेयरिंग सेवा
+</div>
+
+</div>
+
+<button
+id="topLogoutBtn"
+class="logout-top"
+>
+Logout
+</button>
+
+</div>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div class="card" id="loginBox">
+
+<h2>👤 Customer Login</h2>
+
+<p class="small">
+अपने account से login करके repair complaint दर्ज करें और उसका status देखें।
+</p>
+
+<input
+id="email"
+type="email"
+placeholder="Email Address"
+autocomplete="email"
+>
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+autocomplete="current-password"
+>
+
+<button id="loginBtn">
+Login करें
+</button>
+
+<div id="loginMsg" class="msg"></div>
+
+</div>
+
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="hidden">
+
+
+<!-- USER -->
+
+<div class="card">
+
+<div class="user-info">
+
+<div class="avatar">
+👤
+</div>
+
+<div>
+
+<h2 style="margin:0">
+Welcome 👋
+</h2>
+
+<div
+id="userEmail"
+class="small">
+</div>
+
+</div>
+
+</div>
+
+<div class="info">
+
+📌 यहाँ से आप नई repair complaint दर्ज कर सकते हैं और अपनी पुरानी complaints का status तथा quotation देख सकते हैं।
+
+</div>
+
+</div>
+
+
+<!-- NEW COMPLAINT -->
+
+<div class="card">
+
+<h2>🛠️ नई Repair Booking</h2>
+
+<p class="small">
+मोबाइल की सही जानकारी भरें ताकि technician आपकी समस्या समझ सके।
+</p>
+
+
+<select id="brand">
+
+<option value="">
+मोबाइल ब्रांड चुनें
+</option>
+
+<option>Samsung</option>
+<option>Apple iPhone</option>
+<option>Vivo</option>
+<option>Oppo</option>
+<option>Realme</option>
+<option>Redmi</option>
+<option>OnePlus</option>
+<option>Motorola</option>
+<option>Nothing</option>
+<option>Other</option>
+
+</select>
+
+
+<input
+id="model"
+placeholder="मोबाइल मॉडल जैसे Samsung M20"
+>
+
+
+<input
+id="phone"
+type="tel"
+placeholder="Customer Mobile Number"
+>
+
+
+<select id="issue">
+
+<option value="">
+मोबाइल की समस्या चुनें
+</option>
+
+<option>Display / Touch</option>
+<option>Charging</option>
+<option>Battery</option>
+<option>Network / SIM</option>
+<option>Speaker / Mic</option>
+<option>Camera</option>
+<option>Software / Hang</option>
+<option>Water Damage</option>
+<option>Other</option>
+
+</select>
+
+
+<textarea
+id="description"
+placeholder="मोबाइल की समस्या के बारे में पूरी जानकारी लिखें"
+></textarea>
+
+
+<textarea
+id="address"
+placeholder="Pickup / Service Address"
+></textarea>
+
+
+<button id="submitBtn">
+📋 Complaint Submit करें
+</button>
+
+<div id="submitMsg" class="msg"></div>
+
+</div>
+
+
+<!-- COMPLAINTS -->
+
+<div class="card">
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+">
+
+<div>
+
+<h2 style="margin-bottom:5px">
+📋 मेरी Complaints
+</h2>
+
+<p class="small">
+Status और Repair Quotation यहाँ देखें।
+</p>
+
+</div>
+
+
+<button
+id="refreshBtn"
+style="
+width:auto;
+padding:10px 13px;
+margin:0;
+"
+>
+🔄
+</button>
+
+</div>
+
+
+<div id="complaints">
+
+<div class="loading">
+⏳ Complaints Loading...
+</div>
+
+</div>
+
+</div>
+
+
+<!-- LOGOUT -->
+
+<div class="card">
+
+<button
+id="logoutBtn"
+class="gray"
+>
+🚪 Logout
+</button>
+
+</div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+RepairMitra 🛠️<br>
+Trusted Mobile Repair Service
+
+</div>
+
+</div>
+
+
+<!-- SUPABASE -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const sb =
+window.supabase.createClient(
+
+"https://rqnmshqrwntxilwnhqwa.supabase.co",
+
+"sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"
+
+);
+
+
+/* =========================================
+   SHORTCUT
+========================================= */
+
+const $ = id =>
+document.getElementById(id);
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+function msg(id,text,ok=false){
+
+const e = $(id);
+
+e.textContent = text;
+
+e.className =
+"msg " + (ok ? "ok" : "err");
+
+e.style.display = "block";
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHtml(value){
+
+return String(value ?? "")
+
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   NORMALIZE STATUS
+========================================= */
+
+function normalizeStatus(status){
+
+if(!status){
+return "Pending";
+}
+
+return String(status).trim();
+
+}
+
+
+/* =========================================
+   TIMELINE
+========================================= */
+
+function timelineHTML(status){
+
+const current =
+normalizeStatus(status);
+
+const statusOrder = [
+
+"Pending",
+"Assigned",
+"Accepted",
+"Repairing",
+"Completed"
+
+];
+
+const currentIndex =
+statusOrder.indexOf(current);
+
+
+const steps = [
+
+{
+name:"Pending",
+icon:"1",
+text:"Complaint प्राप्त हो गई"
+},
+
+{
+name:"Assigned",
+icon:"2",
+text:"Technician assign हो गया"
+},
+
+{
+name:"Accepted",
+icon:"3",
+text:"Technician ने complaint accept की"
+},
+
+{
+name:"Repairing",
+icon:"4",
+text:"Mobile repair हो रहा है"
+},
+
+{
+name:"Completed",
+icon:"5",
+text:"Repair complete हो गया"
+}
+
+];
+
+
+return `
+
+<div class="timeline">
+
+<div class="timeline-title">
+📍 Repair Status
+</div>
+
+${steps.map((step,index)=>{
+
+const done =
+currentIndex >= index &&
+current !== "No Repair" &&
+current !== "Cancelled";
+
+
+return `
+
+<div class="timeline-item ${done ? "done" : ""}">
+
+<div class="timeline-dot">
+
+${done ? "✓" : step.icon}
+
+</div>
+
+
+${
+index < steps.length - 1
+?
+`<div class="timeline-line"></div>`
+:
+""
+}
+
+
+<div class="timeline-content">
+
+<b>
+${step.name}
+</b>
+
+<span>
+${step.text}
+</span>
+
+</div>
+
+</div>
+
+`;
+
+}).join("")}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================
+   QUOTATION HTML
+========================================= */
+
+function quotationHTML(c){
+
+const charge =
+c.vendor_charge;
+
+
+const note =
+c.vendor_note;
+
+
+if(
+charge === null ||
+charge === undefined ||
+charge === ""
+){
+
+return `
+
+<div class="quote-pending">
+
+💰 <b>Repair Quotation</b>
+
+<br><br>
+
+⏳ Technician ने अभी repair charge नहीं दिया है।
+
+</div>
+
+`;
+
+}
+
+
+return `
+
+<div class="quotation">
+
+<div class="quotation-title">
+
+💰 Repair Quotation
+
+</div>
+
+
+<div class="small">
+
+Technician द्वारा दिया गया अनुमानित repair charge:
+
+</div>
+
+
+<div class="quotation-price">
+
+₹${escapeHtml(
+Number(charge).toLocaleString("en-IN")
+)}
+
+</div>
+
+
+${
+note
+?
+`
+
+<div class="quotation-note">
+
+<b>📝 Technician Note:</b>
+
+<br><br>
+
+${escapeHtml(note)}
+
+</div>
+
+`
+:
+""
+}
+
+
+<div class="small" style="margin-top:10px">
+
+⚠️ यह repair quotation है। Final amount repair के दौरान समस्या की स्थिति के अनुसार बदल सकता है।
+
+</div>
+
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================
+   SHOW DASHBOARD
+========================================= */
+
+function showDashboard(user){
+
+$("loginBox")
+.classList.add("hidden");
+
+$("dashboard")
+.classList.remove("hidden");
+
+$("userEmail").textContent =
+"Login: " + (user.email || "");
+
+loadComplaints(user.id);
+
+}
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+$("loginBtn").onclick =
+async()=>{
+
+
+const email =
+$("email").value.trim();
+
+
+const password =
+$("password").value;
+
+
+if(!email || !password){
+
+return msg(
+"loginMsg",
+"Email और Password भरें।"
+);
+
+}
+
+
+const button =
+$("loginBtn");
+
+
+button.disabled = true;
+
+button.textContent =
+"Login हो रहा है...";
+
+
+const r =
+await sb.auth.signInWithPassword({
+
+email:email,
+
+password:password
+
+});
+
+
+button.disabled = false;
+
+button.textContent =
+"Login करें";
+
+
+if(r.error){
+
+return msg(
+"loginMsg",
+r.error.message
+);
+
+}
+
+
+showDashboard(
+r.data.user
+);
+
+};
+
+
+/* =========================================
+   SUBMIT COMPLAINT
+========================================= */
+
+$("submitBtn").onclick =
+async()=>{
+
+
+const sessionResult =
+await sb.auth.getSession();
+
+
+const user =
+sessionResult.data.session?.user;
+
+
+if(!user){
+
+return msg(
+"submitMsg",
+"पहले Login करें।"
+);
+
+}
+
+
+const brand =
+$("brand").value;
+
+
+const model =
+$("model").value.trim();
+
+
+const phone =
+$("phone").value.trim();
+
+
+const issue =
+$("issue").value;
+
+
+const description =
+$("description").value.trim();
+
+
+const address =
+$("address").value.trim();
+
+
+if(
+!brand ||
+!model ||
+!phone ||
+!issue ||
+!description ||
+!address
+){
+
+return msg(
+"submitMsg",
+"कृपया सभी जानकारी भरें।"
+);
+
+}
+
+
+const button =
+$("submitBtn");
+
+
+button.disabled = true;
+
+button.textContent =
+"Complaint Submit हो रही है...";
+
+
+const result =
+await sb
+
+.from("complaints")
+
+.insert({
+
+customer_id:user.id,
+
+brand:brand,
+
+model:model,
+
+phone:phone,
+
+issue:issue,
+
+description:description,
+
+address:address,
+
+status:"Pending"
+
+})
+
+.select()
+
+.single();
+
+
+button.disabled = false;
+
+button.textContent =
+"📋 Complaint Submit करें";
+
+
+if(result.error){
+
+return msg(
+"submitMsg",
+"Database Error: " +
+result.error.message
+);
+
+}
+
+
+msg(
+"submitMsg",
+"✅ आपकी Complaint सफलतापूर्वक दर्ज हो गई।",
+true
+);
+
+
+/* CLEAR FORM */
+
+$("brand").value = "";
+
+$("model").value = "";
+
+$("phone").value = "";
+
+$("issue").value = "";
+
+$("description").value = "";
+
+$("address").value = "";
+
+
+/* REFRESH */
+
+loadComplaints(
+user.id
+);
+
+};
+
+
+/* =========================================
+   LOAD COMPLAINTS
+========================================= */
+
+async function loadComplaints(uid){
+
+$("complaints").innerHTML = `
+
+<div class="loading">
+⏳ Complaints Loading...
+</div>
+
+`;
+
+
+const result =
+await sb
+
+.from("complaints")
+
+.select(`
+
+id,
+brand,
+model,
+phone,
+issue,
+description,
+address,
+status,
+vendor_id,
+vendor_charge,
+vendor_note,
+created_at,
+updated_at
+
+`)
+
+.eq(
+"customer_id",
+uid
+)
+
+.order(
+"created_at",
+{
+ascending:false
+}
+);
+
+
+if(result.error){
+
+$("complaints").innerHTML = `
+
+<div
+class="msg err"
+style="display:block"
+>
+
+Database Load Error:<br>
+
+${escapeHtml(
+result.error.message
+)}
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+if(
+!result.data ||
+!result.data.length
+){
+
+$("complaints").innerHTML = `
+
+<div class="empty">
+
+<div style="font-size:40px">
+📭
+</div>
+
+<h3>
+अभी कोई Complaint नहीं है
+</h3>
+
+<p>
+ऊपर से अपनी पहली Mobile Repair Booking करें।
+</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+$("complaints").innerHTML =
+
+result.data.map(c=>{
+
+const status =
+normalizeStatus(c.status);
+
+
+const date =
+c.created_at
+?
+new Date(
+c.created_at
+).toLocaleString(
+"hi-IN",
+{
+dateStyle:"medium",
+timeStyle:"short"
+}
+)
+:
+"";
+
+
+const updated =
+c.updated_at
+?
+new Date(
+c.updated_at
+).toLocaleString(
+"hi-IN",
+{
+dateStyle:"medium",
+timeStyle:"short"
+}
+)
+:
+"";
+
+
+const technician =
+c.vendor_id
+?
+"👨‍🔧 Technician Assigned"
+:
+"⏳ Technician अभी Assign नहीं हुआ";
+
+
+return `
+
+<div class="complaint">
+
+
+<div class="complaint-header">
+
+<div>
+
+<h3>
+📱 ${escapeHtml(c.brand)}
+</h3>
+
+<div class="small">
+
+${escapeHtml(c.model)}
+
+</div>
+
+</div>
+
+
+<span class="status ${escapeHtml(status)}">
+
+${escapeHtml(status)}
+
+</span>
+
+</div>
+
+
+<div class="row">
+
+<b>🆔 Complaint ID:</b>
+
+#${escapeHtml(c.id)}
+
+</div>
+
+
+<div class="row">
+
+<b>🔧 समस्या:</b>
+
+${escapeHtml(c.issue)}
+
+</div>
+
+
+<div class="row">
+
+<b>📝 जानकारी:</b>
+
+${escapeHtml(
+c.description ||
+"कोई जानकारी नहीं"
+)}
+
+</div>
+
+
+<div class="row">
+
+<b>📞 Phone:</b>
+
+${escapeHtml(c.phone)}
+
+</div>
+
+
+<div class="row">
+
+<b>📍 Address:</b>
+
+${escapeHtml(c.address)}
+
+</div>
+
+
+<div class="info">
+
+${technician}
+
+</div>
+
+
+${quotationHTML(c)}
+
+
+${timelineHTML(status)}
+
+
+<div class="row small">
+
+📅 Complaint Date:
+
+${escapeHtml(date)}
+
+</div>
+
+
+<div class="row small">
+
+🔄 Last Update:
+
+${escapeHtml(
+updated ||
+"अभी तक update नहीं हुआ"
+)}
+
+</div>
+
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* =========================================
+   REFRESH
+========================================= */
+
+$("refreshBtn").onclick =
+async()=>{
+
+
+const result =
+await sb.auth.getSession();
+
+
+const user =
+result.data.session?.user;
+
+
+if(!user){
+
+return;
+
+}
+
+
+const button =
+$("refreshBtn");
+
+
+button.disabled = true;
+
+button.textContent =
+"⏳";
+
+
+await loadComplaints(
+user.id
+);
+
+
+button.disabled = false;
+
+button.textContent =
+"🔄";
+
+
+msg(
+"submitMsg",
+"✅ Status और quotation refresh हो गया।",
+true
+);
+
+};
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+await sb.auth.signOut();
+
+location.reload();
+
+}
+
+
+$("logoutBtn").onclick =
+logout;
+
+
+$("topLogoutBtn").onclick =
+logout;
+
+
+/* =========================================
+   KEEP LOGIN
+========================================= */
+
+sb.auth.getSession()
+.then(result=>{
+
+if(
+result.data.session
+){
+
+showDashboard(
+result.data.session.user
+);
+
+}
+
+});
+
+
+/* =========================================
+   AUTH STATE
+========================================= */
+
+sb.auth.onAuthStateChange(
+(event,session)=>{
+
+if(session){
+
+showDashboard(
+session.user
+);
+
+}
+
+});
+
+</script>
+
+</body>
+</html>}
 
 .header-top{
   display:flex;
