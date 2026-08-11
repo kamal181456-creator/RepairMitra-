@@ -5,17 +5,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>RepairMitra - Vendor Panel</title>
+<title>RepairMitra Vendor Panel</title>
 
 <style>
 
 *{
-  box-sizing:border-box
+  box-sizing:border-box;
 }
 
 body{
-  margin:0;
   font-family:Arial,Helvetica,sans-serif;
+  margin:0;
   background:#f4f7fb;
   color:#172033;
 }
@@ -26,8 +26,6 @@ body{
   padding:15px;
 }
 
-/* HEADER */
-
 .header{
   background:linear-gradient(135deg,#1769e0,#0d47a1);
   color:white;
@@ -35,6 +33,1018 @@ body{
   border-radius:20px;
   margin-bottom:15px;
   box-shadow:0 8px 25px #1769e033;
+}
+
+.logo{
+  font-size:27px;
+  font-weight:bold;
+}
+
+.tagline{
+  margin-top:6px;
+  font-size:14px;
+}
+
+.card{
+  background:#fff;
+  padding:20px;
+  margin:14px 0;
+  border-radius:18px;
+  box-shadow:0 5px 20px #0000000d;
+}
+
+input,
+select,
+textarea,
+button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border-radius:10px;
+  font-size:16px;
+}
+
+input,
+select,
+textarea{
+  border:1px solid #ccd4df;
+  background:white;
+}
+
+textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+button{
+  border:0;
+  background:#1769e0;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.6;
+}
+
+.gray{
+  background:#e9eef7;
+  color:#172033;
+}
+
+.hidden{
+  display:none!important;
+}
+
+.item{
+  border:1px solid #dfe5ed;
+  padding:17px;
+  margin:13px 0;
+  border-radius:16px;
+  background:#fff;
+}
+
+.item h3{
+  margin-top:0;
+}
+
+.info{
+  background:#f5f8fc;
+  border-radius:12px;
+  padding:12px;
+  margin:10px 0;
+  line-height:1.6;
+}
+
+.row{
+  margin:9px 0;
+  line-height:1.5;
+}
+
+.msg{
+  padding:12px;
+  margin:10px 0;
+  border-radius:10px;
+  display:none;
+  line-height:1.5;
+}
+
+.err{
+  background:#fde8e8;
+  color:#a12626;
+}
+
+.ok{
+  background:#e5f7ea;
+  color:#176b36;
+}
+
+.small{
+  font-size:13px;
+  color:#667085;
+}
+
+.status{
+  display:inline-block;
+  padding:6px 11px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.status-assigned{
+  background:#e8f1ff;
+  color:#1769e0;
+}
+
+.status-accepted{
+  background:#e7f7ee;
+  color:#16794c;
+}
+
+.status-repairing{
+  background:#f0eaff;
+  color:#6842c2;
+}
+
+.status-completed{
+  background:#dff7e7;
+  color:#087443;
+}
+
+.status-norepair{
+  background:#fde8e8;
+  color:#a12626;
+}
+
+.status-pending{
+  background:#fff4d6;
+  color:#9a6700;
+}
+
+.empty{
+  text-align:center;
+  padding:25px;
+  color:#667085;
+}
+
+.footer{
+  text-align:center;
+  padding:25px 5px;
+  color:#667085;
+  font-size:13px;
+}
+
+/* QUOTATION */
+
+.quotation{
+  background:#fff8e6;
+  border:2px solid #f0d58a;
+  border-radius:15px;
+  padding:15px;
+  margin-top:15px;
+}
+
+.quotation-title{
+  font-size:18px;
+  font-weight:bold;
+  color:#765300;
+}
+
+.quotation-price{
+  font-size:28px;
+  font-weight:bold;
+  color:#9a6700;
+  margin:8px 0;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+  .wrap{
+    padding:10px;
+  }
+
+  .header{
+    padding:18px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+<div class="logo">
+RepairMitra 🛠️
+</div>
+
+<div class="tagline">
+👨‍🔧 Vendor / Technician Panel
+</div>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div class="card" id="login">
+
+<h2>👨‍🔧 Vendor Login</h2>
+
+<p class="small">
+अपने Vendor account से login करें।
+</p>
+
+<input
+id="email"
+type="email"
+placeholder="Vendor Email"
+autocomplete="email"
+>
+
+<input
+id="pass"
+type="password"
+placeholder="Password"
+autocomplete="current-password"
+>
+
+<button id="loginBtn" onclick="login()">
+Login करें
+</button>
+
+<div id="msg" class="msg err"></div>
+
+</div>
+
+
+<!-- PANEL -->
+
+<div id="panel" class="hidden">
+
+
+<!-- VENDOR INFO -->
+
+<div class="card">
+
+<h2>👋 Welcome Vendor</h2>
+
+<p id="who" class="small"></p>
+
+<div class="info">
+
+📌 यहाँ आपको केवल आपकी assigned mobile repair complaints दिखाई देंगी।
+
+<br>
+
+💰 आप यहीं से repair charge/quotation और complaint status update कर सकते हैं।
+
+</div>
+
+</div>
+
+
+<!-- COMPLAINTS -->
+
+<div class="card">
+
+<h2>📋 मेरी Assigned Complaints</h2>
+
+<p class="small">
+Customer की complaint खोलकर status और quotation update करें।
+</p>
+
+<div id="list">
+Loading...
+</div>
+
+</div>
+
+
+<!-- LOGOUT -->
+
+<div class="card">
+
+<button class="gray" onclick="logout()">
+🚪 Logout
+</button>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+RepairMitra 🛠️<br>
+
+Trusted Mobile Repair Service
+
+</div>
+
+</div>
+
+
+<!-- SUPABASE -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const sb = window.supabase.createClient(
+
+"https://rqnmshqrwntxilwnhqwa.supabase.co",
+
+"sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"
+
+);
+
+
+/* =========================================
+   SHORTCUT
+========================================= */
+
+const $ = id => document.getElementById(id);
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+function showMessage(text,ok=false){
+
+  $("msg").textContent = text;
+
+  $("msg").className =
+    "msg " + (ok ? "ok" : "err");
+
+  $("msg").style.display = "block";
+
+}
+
+
+/* =========================================
+   STATUS CLASS
+========================================= */
+
+function statusClass(status){
+
+  if(status === "Accepted"){
+    return "status-accepted";
+  }
+
+  if(status === "Repairing"){
+    return "status-repairing";
+  }
+
+  if(status === "Completed"){
+    return "status-completed";
+  }
+
+  if(status === "No Repair"){
+    return "status-norepair";
+  }
+
+  if(status === "Pending"){
+    return "status-pending";
+  }
+
+  return "status-assigned";
+}
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+async function login(){
+
+  const email =
+    $("email").value.trim();
+
+  const password =
+    $("pass").value;
+
+
+  if(!email || !password){
+
+    return showMessage(
+      "Email और Password भरें।"
+    );
+
+  }
+
+
+  const button =
+    $("loginBtn");
+
+  button.disabled = true;
+
+  button.textContent =
+    "Login हो रहा है...";
+
+
+  const r =
+    await sb.auth.signInWithPassword({
+
+      email:email,
+
+      password:password
+
+    });
+
+
+  button.disabled = false;
+
+  button.textContent =
+    "Login करें";
+
+
+  if(r.error){
+
+    return showMessage(
+      r.error.message
+    );
+
+  }
+
+
+  const user =
+    r.data.user;
+
+
+  /* CHECK VENDOR */
+
+  const v =
+    await sb
+      .from("profiles")
+      .select("id,role")
+      .eq("id",user.id)
+      .eq("role","vendor")
+      .maybeSingle();
+
+
+  if(v.error || !v.data){
+
+    await sb.auth.signOut();
+
+    return showMessage(
+      "यह account Vendor नहीं है।"
+    );
+
+  }
+
+
+  showPanel(user);
+
+}
+
+
+/* =========================================
+   SHOW PANEL
+========================================= */
+
+function showPanel(user){
+
+  $("login")
+    .classList
+    .add("hidden");
+
+  $("panel")
+    .classList
+    .remove("hidden");
+
+  $("who").textContent =
+    "Vendor: " + (user.email || "");
+
+  loadComplaints(user.id);
+
+}
+
+
+/* =========================================
+   LOAD COMPLAINTS
+========================================= */
+
+async function loadComplaints(uid){
+
+  $("list").innerHTML =
+    '<div class="empty">⏳ Complaints Loading...</div>';
+
+
+  const r =
+    await sb
+      .from("complaints")
+      .select(`
+        id,
+        brand,
+        model,
+        phone,
+        issue,
+        description,
+        address,
+        status,
+        vendor_charge,
+        vendor_note,
+        created_at,
+        updated_at
+      `)
+      .eq("vendor_id",uid)
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(r.error){
+
+    $("list").innerHTML =
+
+      '<div class="msg err" style="display:block">' +
+
+      "Database Error: " +
+
+      escapeHtml(r.error.message) +
+
+      "</div>";
+
+    return;
+
+  }
+
+
+  if(!r.data || !r.data.length){
+
+    $("list").innerHTML = `
+
+      <div class="empty">
+
+        <div style="font-size:40px">
+          📭
+        </div>
+
+        <h3>
+          अभी कोई complaint assign नहीं हुई है।
+        </h3>
+
+        <p>
+          नई complaint assign होने के बाद यहाँ दिखाई देगी।
+        </p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  $("list").innerHTML =
+
+    r.data.map(x => {
+
+      const status =
+        x.status || "Assigned";
+
+
+      const created =
+        x.created_at
+        ?
+        new Date(
+          x.created_at
+        ).toLocaleString(
+          "hi-IN",
+          {
+            dateStyle:"medium",
+            timeStyle:"short"
+          }
+        )
+        :
+        "";
+
+
+      const updated =
+        x.updated_at
+        ?
+        new Date(
+          x.updated_at
+        ).toLocaleString(
+          "hi-IN",
+          {
+            dateStyle:"medium",
+            timeStyle:"short"
+          }
+        )
+        :
+        "अभी तक नहीं";
+
+
+      return `
+
+      <div class="item">
+
+        <h3>
+          📱 Complaint #${escapeHtml(x.id)}
+          ${escapeHtml(x.brand || "")}
+          ${escapeHtml(x.model || "")}
+        </h3>
+
+
+        <div class="row">
+
+          <b>Status:</b>
+
+          <span class="status ${statusClass(status)}">
+
+            ${escapeHtml(status)}
+
+          </span>
+
+        </div>
+
+
+        <div class="row">
+
+          <b>🔧 Problem:</b>
+
+          ${escapeHtml(x.issue || "")}
+
+        </div>
+
+
+        <div class="row">
+
+          <b>📝 Customer Description:</b>
+
+          <br>
+
+          ${escapeHtml(
+            x.description ||
+            "कोई description नहीं"
+          )}
+
+        </div>
+
+
+        <div class="row">
+
+          <b>📞 Customer Phone:</b>
+
+          ${escapeHtml(x.phone || "")}
+
+        </div>
+
+
+        <div class="row">
+
+          <b>📍 Address:</b>
+
+          ${escapeHtml(x.address || "")}
+
+        </div>
+
+
+        <div class="info">
+
+          <b>📅 Complaint:</b>
+
+          ${escapeHtml(created)}
+
+          <br>
+
+          <b>🔄 Last Update:</b>
+
+          ${escapeHtml(updated)}
+
+        </div>
+
+
+        <hr>
+
+
+        <h3>
+          🔄 Complaint Status
+        </h3>
+
+
+        <select id="s${x.id}">
+
+          <option value="Assigned"
+            ${status==="Assigned"?"selected":""}>
+            Assigned
+          </option>
+
+          <option value="Accepted"
+            ${status==="Accepted"?"selected":""}>
+            Accepted
+          </option>
+
+          <option value="Repairing"
+            ${status==="Repairing"?"selected":""}>
+            Repairing
+          </option>
+
+          <option value="Completed"
+            ${status==="Completed"?"selected":""}>
+            Completed
+          </option>
+
+          <option value="No Repair"
+            ${status==="No Repair"?"selected":""}>
+            ❌ No Repair
+          </option>
+
+        </select>
+
+
+        <!-- QUOTATION -->
+
+        <div class="quotation">
+
+          <div class="quotation-title">
+
+            💰 Repair Charges / Quotation
+
+          </div>
+
+          <p class="small">
+
+            Customer को repair charge बताने के लिए
+            amount डालें।
+
+          </p>
+
+
+          <label class="small">
+            Repair Charge ₹
+          </label>
+
+          <input
+            id="charge${x.id}"
+            type="number"
+            min="0"
+            placeholder="जैसे 500"
+            value="${x.vendor_charge ?? ""}"
+          >
+
+
+          <label class="small">
+
+            Vendor Note / Quotation Details
+
+          </label>
+
+          <textarea
+            id="note${x.id}"
+            placeholder="जैसे Display बदलना होगा, पार्ट्स ₹400 + Labour ₹100..."
+          >${escapeHtml(x.vendor_note || "")}</textarea>
+
+
+          <button
+            onclick="updateComplaint(${x.id})"
+          >
+
+            💾 Save Status & Quotation
+
+          </button>
+
+        </div>
+
+
+      </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================
+   UPDATE STATUS + QUOTATION
+========================================= */
+
+async function updateComplaint(id){
+
+  const status =
+    $("s"+id).value;
+
+
+  const chargeValue =
+    $("charge"+id).value.trim();
+
+
+  const note =
+    $("note"+id).value.trim();
+
+
+  let charge = null;
+
+
+  if(chargeValue !== ""){
+
+    charge =
+      Number(chargeValue);
+
+
+    if(
+      Number.isNaN(charge) ||
+      charge < 0
+    ){
+
+      alert(
+        "Repair Charge सही amount डालें।"
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  const button =
+    document.activeElement;
+
+
+  if(button){
+
+    button.disabled = true;
+
+    button.textContent =
+      "Saving...";
+
+  }
+
+
+  const r =
+    await sb
+      .from("complaints")
+      .update({
+
+        status:status,
+
+        vendor_charge:charge,
+
+        vendor_note:note,
+
+        updated_at:
+          new Date().toISOString()
+
+      })
+      .eq("id",id);
+
+
+  if(r.error){
+
+    if(button){
+
+      button.disabled = false;
+
+      button.textContent =
+        "💾 Save Status & Quotation";
+
+    }
+
+
+    alert(
+      "Update Error:\n" +
+      r.error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "✅ Complaint successfully update हो गई।\n\n" +
+
+    "Status: " + status +
+
+    "\nRepair Charge: " +
+
+    (
+      charge === null
+      ?
+      "अभी नहीं दिया"
+      :
+      "₹" + charge
+    )
+  );
+
+
+  const session =
+    await sb.auth.getSession();
+
+
+  const uid =
+    session.data.session?.user?.id;
+
+
+  if(uid){
+
+    loadComplaints(uid);
+
+  }
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+
+    .replace(/&/g,"&amp;")
+
+    .replace(/</g,"&lt;")
+
+    .replace(/>/g,"&gt;")
+
+    .replace(/"/g,"&quot;")
+
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+  await sb.auth.signOut();
+
+  location.reload();
+
+}
+
+
+/* =========================================
+   KEEP LOGIN AFTER REFRESH
+========================================= */
+
+sb.auth.getSession().then(
+  async r => {
+
+    const user =
+      r.data.session?.user;
+
+
+    if(!user){
+
+      return;
+
+    }
+
+
+    const v =
+      await sb
+        .from("profiles")
+        .select("id,role")
+        .eq("id",user.id)
+        .eq("role","vendor")
+        .maybeSingle();
+
+
+    if(!v.error && v.data){
+
+      showPanel(user);
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>  box-shadow:0 8px 25px #1769e033;
 }
 
 .logo{
