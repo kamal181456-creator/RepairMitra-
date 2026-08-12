@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RepairMitra - Mobile Repair Service</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:#172033}
+.wrap{max-width:900px;margin:auto;padding:15px}
+.nav{background:#fff;border-radius:18px;padding:15px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 4px 18px #0000000d;position:sticky;top:8px;z-index:10}
+.logo{color:#1769e0;font-size:23px;font-weight:bold}
+.nav-buttons{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.btn{display:inline-block;text-decoration:none;border:0;padding:11px 15px;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;margin:5px;text-align:center}
+.primary{background:#1769e0;color:#fff}.vendor{background:#087443;color:#fff}.admin{background:#172033;color:#fff}.signup{background:#f59e0b;color:#fff}.hero-customer{background:#fff;color:#1769e0}
+.hero{margin-top:18px;background:linear-gradient(135deg,#1769e0,#0d47a1);color:#fff;padding:45px 25px;border-radius:24px;text-align:center;box-shadow:0 10px 30px #1769e033}
+.hero h1{font-size:38px;margin:0 0 12px}.hero p{font-size:18px;line-height:1.6;margin:8px 0 22px}
+.section{margin-top:22px}.section h2{text-align:center;font-size:26px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{background:#fff;padding:20px;border-radius:18px;box-shadow:0 5px 20px #0000000d}
+.icon{font-size:32px}.card h3{margin:10px 0 7px}.card p{color:#667085;line-height:1.5;margin:0}
+.login-section{margin-top:22px}.login-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.login-card{background:#fff;padding:20px;border-radius:18px;text-align:center;box-shadow:0 5px 20px #0000000d}
+.login-card .big{font-size:42px}.login-card h3{margin:10px 0 8px}.login-card p{color:#667085;font-size:14px;line-height:1.5}.login-card .btn{width:100%;margin-top:8px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.step{background:#fff;padding:20px;border-radius:18px;text-align:center}
+.number{width:42px;height:42px;border-radius:50%;background:#e8f1ff;color:#1769e0;display:flex;align-items:center;justify-content:center;margin:auto;font-size:20px;font-weight:bold}
+.cta{margin-top:22px;background:#172033;color:#fff;padding:30px 20px;border-radius:20px;text-align:center}.cta h2{margin-top:0}
+.footer{text-align:center;padding:25px 5px;color:#667085;font-size:13px}
+.note{margin-top:10px;background:#fff8e6;border:1px solid #ffe1a3;color:#805b00;padding:12px;border-radius:12px;text-align:center;font-size:14px}
+@media(max-width:700px){.nav{align-items:flex-start;flex-direction:column}.nav-buttons{width:100%;flex-direction:column}.nav .btn{width:100%;text-align:center}.hero h1{font-size:30px}.grid,.login-grid,.steps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="nav">
+<div class="logo">RepairMitra 🛠️</div>
+<div class="nav-buttons">
+<a class="btn primary" href="RepairMitra_customer_latest.html">👤 Customer</a>
+<a class="btn vendor" href="RepairMitra_vendor_latest.html">👨‍🔧 Vendor Login</a>
+<a class="btn signup" href="vendor_signup.html">📝 Vendor Signup</a>
+<a class="btn admin" href="RepairMitra_admin_panel.html">🛠️ Admin</a>
+</div>
+</div>
+
+<section class="hero">
+<h1>📱 मोबाइल रिपेयरिंग अब आसान</h1>
+<p>घर बैठे मोबाइल रिपेयरिंग सेवा बुक करें।<br>अपनी complaint दर्ज करें और repair status online देखें।</p>
+<a class="btn hero-customer" href="RepairMitra_customer_latest.html">🔧 Repair Book करें</a>
+</section>
+
+<section class="login-section">
+<h2>🔐 RepairMitra Login & Registration</h2>
+<div class="login-grid">
+<div class="login-card"><div class="big">👤</div><h3>Customer</h3><p>नई repair complaint दर्ज करें और अपनी complaint का status देखें।</p><a class="btn primary" href="RepairMitra_customer_latest.html">Customer Login</a></div>
+<div class="login-card"><div class="big">👨‍🔧</div><h3>Vendor Login</h3><p>Assigned complaints देखें और repair status update करें।</p><a class="btn vendor" href="RepairMitra_vendor_latest.html">Vendor Login</a></div>
+<div class="login-card"><div class="big">📝</div><h3>Vendor Signup</h3><p>नया repair technician/vendor account बनाएं।</p><a class="btn signup" href="vendor_signup.html">Vendor Signup</a></div>
+<div class="login-card"><div class="big">🛠️</div><h3>Admin Login</h3><p>Customer complaints देखें और Vendor को complaint assign करें।</p><a class="btn admin" href="RepairMitra_admin_panel.html">Admin Login</a></div>
+</div>
+<div class="note">👨‍🔧 नए technician के लिए पहले <b>Vendor Signup</b> करें, फिर Vendor Login करें।</div>
+</section>
+
+<section class="section"><h2>🛠️ हमारी Repair Services</h2><div class="grid">
+<div class="card"><div class="icon">📱</div><h3>Display / Touch</h3><p>टूटा हुआ display या touch खराब होने पर repair service।</p></div>
+<div class="card"><div class="icon">🔋</div><h3>Battery</h3><p>Battery जल्दी खत्म होना या battery damage की समस्या।</p></div>
+<div class="card"><div class="icon">🔌</div><h3>Charging</h3><p>Charging port और charging related problems की service।</p></div>
+<div class="card"><div class="icon">📡</div><h3>Network / SIM</h3><p>Network, SIM और connectivity से जुड़ी समस्याओं की service।</p></div>
+<div class="card"><div class="icon">🔊</div><h3>Speaker / Mic</h3><p>Speaker और microphone की खराबी की repair service।</p></div>
+<div class="card"><div class="icon">📷</div><h3>Camera</h3><p>Camera काम न करने या camera related problems की service।</p></div>
+</div></section>
+
+<section class="section"><h2>⚡ RepairMitra कैसे काम करता है?</h2><div class="steps">
+<div class="step"><div class="number">1</div><h3>Complaint दर्ज करें</h3><p>Customer अपनी mobile problem और address की जानकारी देता है।</p></div>
+<div class="step"><div class="number">2</div><h3>Vendor Assign</h3><p>Admin complaint को सही repair technician/vendor को assign करता है।</p></div>
+<div class="step"><div class="number">3</div><h3>Repair & Status</h3><p>Vendor repair status update करता है और Customer online status देखता है।</p></div>
+</div></section>
+
+<section class="section"><h2>⭐ RepairMitra क्यों?</h2><div class="grid">
+<div class="card"><div class="icon">⚡</div><h3>Fast Service</h3><p>जल्दी complaint processing और repair updates।</p></div>
+<div class="card"><div class="icon">👨‍🔧</div><h3>Repair Technician</h3><p>आपकी complaint assigned repair technician handle करता है।</p></div>
+<div class="card"><div class="icon">📋</div><h3>Online Tracking</h3><p>अपनी complaint का current status online देखें।</p></div>
+<div class="card"><div class="icon">🏠</div><h3>Doorstep Service</h3><p>Pickup और service address की सुविधा के साथ repair request दर्ज करें।</p></div>
+</div></section>
+
+<section class="cta"><h2>📱 मोबाइल में परेशानी है?</h2><p>आज ही RepairMitra पर अपनी repair complaint दर्ज करें।</p><a class="btn hero-customer" href="RepairMitra_customer_latest.html">🔧 अभी Repair Book करें</a></section>
+<div class="footer">RepairMitra 🛠️<br>Mobile Repair Service Platform</div>
+</div>
+</body>
+</html>
