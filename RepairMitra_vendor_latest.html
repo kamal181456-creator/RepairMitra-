@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RepairMitra Vendor Panel</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}.wrap{max-width:760px;margin:auto;padding:15px}
+.header{background:linear-gradient(135deg,#1769e0,#0d47a1);color:#fff;padding:22px;border-radius:20px;margin-bottom:15px}.logo{font-size:27px;font-weight:bold}.tagline{margin-top:6px;font-size:14px}
+.card{background:#fff;padding:20px;margin:14px 0;border-radius:18px;box-shadow:0 5px 20px #0000000d}input,select,textarea,button{width:100%;padding:13px;margin:7px 0;border-radius:10px;font-size:16px;font-family:Arial}input,select,textarea{border:1px solid #ccd4df;background:#fff}textarea{min-height:80px;resize:vertical}button{border:0;background:#1769e0;color:#fff;font-weight:bold;cursor:pointer}button:disabled{opacity:.6}.gray{background:#e9eef7;color:#172033}.hidden{display:none!important}
+.item{border:1px solid #dfe5ed;padding:17px;margin:13px 0;border-radius:16px;background:#fff}.info{background:#f5f8fc;border-radius:12px;padding:12px;margin:10px 0;line-height:1.6}.row{margin:9px 0;line-height:1.5}.small{font-size:13px;color:#667085}
+.msg{padding:12px;margin:10px 0;border-radius:10px;display:none;line-height:1.5}.err{background:#fde8e8;color:#a12626}.ok{background:#e5f7ea;color:#176b36}
+.status{display:inline-block;padding:6px 11px;border-radius:20px;font-size:13px;font-weight:bold}.status-assigned{background:#e8f1ff;color:#1769e0}.status-accepted{background:#e7f7ee;color:#16794c}.status-repairing{background:#f0eaff;color:#6842c2}.status-completed{background:#dff7e7;color:#087443}.status-norepair{background:#fde8e8;color:#a12626}.status-pending{background:#fff4d6;color:#9a6700}
+.quotation{background:#fff8e6;border:2px solid #f0d58a;border-radius:15px;padding:15px;margin-top:15px}.quotation-title{font-size:18px;font-weight:bold;color:#765300}.empty{text-align:center;padding:25px;color:#667085}.footer{text-align:center;padding:25px 5px;color:#667085;font-size:13px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="header"><div class="logo">RepairMitra 🛠️</div><div class="tagline">👨‍🔧 Vendor / Technician Panel</div></div>
+<div class="card" id="login"><h2>👨‍🔧 Vendor Login</h2><p class="small">अपने Vendor account से login करें।</p>
+<input id="email" type="email" placeholder="Vendor Email" autocomplete="email"><input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+<button id="loginBtn" onclick="login()">Login करें</button><div id="msg" class="msg"></div></div>
+<div id="panel" class="hidden">
+<div class="card"><h2>👋 Welcome Vendor</h2><p id="who" class="small"></p><div class="info">📌 यहाँ केवल आपकी assigned complaints दिखाई देंगी।<br>💰 यहीं से status और repair quotation update करें।</div></div>
+<div class="card"><h2>📋 मेरी Assigned Complaints</h2><div id="list"><div class="empty">⏳ Loading...</div></div></div>
+<div class="card"><button class="gray" onclick="logout()">🚪 Logout</button></div>
+</div><div class="footer">RepairMitra 🛠️<br>Trusted Mobile Repair Service</div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=window.supabase.createClient("https://rqnmshqrwntxilwnhqwa.supabase.co","sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"),$=id=>document.getElementById(id);
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function showMsg(t,ok=false){$("msg").textContent=t;$("msg").className="msg "+(ok?"ok":"err");$("msg").style.display="block"}
+function statusClass(s){if(s==="Accepted")return"status-accepted";if(s==="Repairing")return"status-repairing";if(s==="Completed")return"status-completed";if(s==="No Repair")return"status-norepair";if(s==="Pending")return"status-pending";return"status-assigned"}
+async function isVendor(uid){const r=await sb.from("profiles").select("id,role").eq("id",uid).eq("role","vendor").maybeSingle();return !r.error&&!!r.data}
+async function login(){
+ const email=$("email").value.trim(),password=$("pass").value;if(!email||!password)return showMsg("Email और Password भरें।");
+ const b=$("loginBtn");b.disabled=true;b.textContent="Login हो रहा है...";
+ const r=await sb.auth.signInWithPassword({email,password});b.disabled=false;b.textContent="Login करें";
+ if(r.error)return showMsg(r.error.message);
+ if(!(await isVendor(r.data.user.id))){await sb.auth.signOut();return showMsg("यह account Vendor नहीं है।")}
+ showPanel(r.data.user);
+}
+function showPanel(u){$("login").classList.add("hidden");$("panel").classList.remove("hidden");$("who").textContent="Vendor: "+(u.email||"");loadComplaints(u.id)}
+async function loadComplaints(uid){
+ $("list").innerHTML='<div class="empty">⏳ Complaints Loading...</div>';
+ const r=await sb.from("complaints").select("id,brand,model,phone,issue,description,address,status,vendor_id,vendor_charge,vendor_note,created_at,updated_at").eq("vendor_id",uid).order("created_at",{ascending:false});
+ if(r.error)return $("list").innerHTML='<div class="msg err" style="display:block">Database Error: '+esc(r.error.message)+'</div>';
+ if(!r.data?.length)return $("list").innerHTML='<div class="empty">📭<h3>अभी कोई complaint assign नहीं हुई है।</h3><p>नई complaint assign होने के बाद यहाँ दिखाई देगी।</p></div>';
+ $("list").innerHTML=r.data.map(renderComplaint).join("");
+}
+function renderComplaint(x){
+ const s=x.status||"Assigned",created=x.created_at?new Date(x.created_at).toLocaleString("hi-IN",{dateStyle:"medium",timeStyle:"short"}):"",updated=x.updated_at?new Date(x.updated_at).toLocaleString("hi-IN",{dateStyle:"medium",timeStyle:"short"}):"अभी तक नहीं";
+ return '<div class="item"><h3>📱 Complaint #'+esc(x.id)+' — '+esc(x.brand)+' '+esc(x.model)+'</h3><div class="row"><b>Status:</b> <span class="status '+statusClass(s)+'">'+esc(s)+'</span></div>'+
+ '<div class="row"><b>🔧 Problem:</b> '+esc(x.issue)+'</div><div class="row"><b>📝 Customer Description:</b><br>'+esc(x.description||"कोई description नहीं")+'</div><div class="row"><b>📞 Customer Phone:</b> '+esc(x.phone)+'</div><div class="row"><b>📍 Address:</b> '+esc(x.address)+'</div>'+
+ '<div class="info"><b>📅 Complaint:</b> '+esc(created)+'<br><b>🔄 Last Update:</b> '+esc(updated)+'</div><hr><h3>🔄 Status & Quotation</h3>'+
+ '<select id="s'+x.id+'"><option value="Assigned" '+(s==="Assigned"?"selected":"")+'>Assigned</option><option value="Accepted" '+(s==="Accepted"?"selected":"")+'>Accepted</option><option value="Repairing" '+(s==="Repairing"?"selected":"")+'>Repairing</option><option value="Completed" '+(s==="Completed"?"selected":"")+'>Completed</option><option value="No Repair" '+(s==="No Repair"?"selected":"")+'>❌ No Repair</option></select>'+
+ '<label class="small">💰 Repair Charge ₹</label><input id="charge'+x.id+'" type="number" min="0" placeholder="जैसे 500" value="'+(x.vendor_charge??"")+'">'+
+ '<label class="small">📝 Vendor Note</label><textarea id="note'+x.id+'" placeholder="Repair के बारे में note लिखें...">'+esc(x.vendor_note||"")+'</textarea>'+
+ '<button onclick="updateComplaint('+x.id+',this)">💾 Save Status & Quotation</button></div>';
+}
+async function updateComplaint(id,button){
+ const status=$("s"+id).value,note=$("note"+id).value.trim(),raw=$("charge"+id).value.trim();let charge=null;
+ if(raw!==""){charge=Number(raw);if(!Number.isFinite(charge)||charge<0)return alert("Repair Charge सही amount डालें।")}
+ const session=await sb.auth.getSession(),uid=session.data.session?.user?.id;if(!uid)return alert("Session समाप्त हो गया।");
+ button.disabled=true;button.textContent="Saving...";
+ const r=await sb.from("complaints").update({status,vendor_charge:charge,vendor_note:note,updated_at:new Date().toISOString()}).eq("id",id).eq("vendor_id",uid);
+ button.disabled=false;button.textContent="💾 Save Status & Quotation";
+ if(r.error)return alert("Update Error: "+r.error.message);
+ alert("✅ Complaint update हो गई।\nStatus: "+status+(charge===null?"":"\nRepair Charge: ₹"+charge));loadComplaints(uid);
+}
+async function logout(){await sb.auth.signOut();location.reload()}
+sb.auth.getSession().then(async r=>{const u=r.data.session?.user;if(u&&await isVendor(u.id))showPanel(u)});
+</script></body></html>
