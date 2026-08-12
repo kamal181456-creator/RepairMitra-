@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RepairMitra Vendor Signup</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+.wrap{max-width:600px;margin:auto;padding:15px}.header{background:linear-gradient(135deg,#1769e0,#0d47a1);color:#fff;padding:22px;border-radius:20px;margin-bottom:15px}
+.logo{font-size:27px;font-weight:bold}.tagline{margin-top:6px;font-size:14px}.card{background:#fff;padding:20px;margin:14px 0;border-radius:18px;box-shadow:0 5px 20px #0000000d}
+input,button{width:100%;padding:13px;margin:7px 0;border-radius:10px;font-size:16px;font-family:Arial}input{border:1px solid #ccd4df}button{border:0;background:#1769e0;color:#fff;font-weight:bold;cursor:pointer}button:disabled{opacity:.6}.gray{background:#e9eef7;color:#172033}
+.msg{display:none;padding:12px;border-radius:10px;margin:10px 0;line-height:1.5}.ok{background:#e5f7ea;color:#176b36}.err{background:#fde8e8;color:#a12626}.small{font-size:13px;color:#667085}.hidden{display:none!important}
+.footer{text-align:center;padding:25px 5px;color:#667085;font-size:13px}
+</style></head>
+<body><div class="wrap">
+<div class="header"><div class="logo">RepairMitra 🛠️</div><div class="tagline">👨‍🔧 Vendor / Technician Registration</div></div>
+
+<div class="card" id="authBox">
+<h2>👨‍🔧 Vendor Signup</h2><p class="small">अपना Vendor account बनाएं। Signup के बाद account में <b>vendor</b> role अपने-आप बनेगा।</p>
+<input id="name" placeholder="Vendor का नाम">
+<input id="phone" type="tel" placeholder="मोबाइल नंबर">
+<input id="email" type="email" placeholder="Vendor Email" autocomplete="email">
+<input id="password" type="password" placeholder="Password (कम से कम 6 अक्षर)" autocomplete="new-password">
+<button id="signupBtn" onclick="signup()">Vendor Account बनाएं</button>
+<hr>
+<h3>पहले से account है?</h3>
+<button class="gray" onclick="goVendorLogin()">Vendor Login खोलें</button>
+<div id="msg" class="msg"></div>
+</div>
+
+<div class="card hidden" id="profileBox"><h2>✅ Vendor Account Ready</h2><p id="profileText"></p><div class="small">अब Vendor Panel में इसी Email और Password से Login करें।</div><button onclick="location.reload()" class="gray">Logout / Back</button></div>
+<div class="footer">RepairMitra 🛠️<br>Vendor Registration</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=window.supabase.createClient("https://rqnmshqrwntxilwnhqwa.supabase.co","sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"),$=id=>document.getElementById(id);
+function msg(t,ok=false){$("msg").textContent=t;$("msg").className="msg "+(ok?"ok":"err");$("msg").style.display="block"}
+async function signup(){
+ const name=$("name").value.trim(),phone=$("phone").value.trim(),email=$("email").value.trim(),password=$("password").value;
+ if(!name||!phone||!email||password.length<6)return msg("नाम, मोबाइल, Email और कम से कम 6 अक्षर का Password भरें।");
+ const b=$("signupBtn");b.disabled=true;b.textContent="Account बन रहा है...";
+ const r=await sb.auth.signUp({email,password,options:{data:{full_name:name,phone:phone,role:"vendor"}}});
+ b.disabled=false;b.textContent="Vendor Account बनाएं";
+ if(r.error)return msg("Signup Error: "+r.error.message);
+ if(!r.data.user)return msg("Account नहीं बना।");
+ if(!r.data.session){
+   msg("✅ Account बन गया। अपने Email की confirmation link पर click करें, फिर Vendor Panel में Login करें।","ok");
+   return;
+ }
+ const p=await sb.from("profiles").select("full_name,phone,role").eq("id",r.data.user.id).maybeSingle();
+ if(p.error)return msg("Profile Error: "+p.error.message);
+ $("authBox").classList.add("hidden");$("profileBox").classList.remove("hidden");
+ $("profileText").innerHTML="Email: "+r.data.user.email+"<br>नाम: "+(p.data?.full_name||name)+"<br>Role: "+(p.data?.role||"vendor");
+}
+
+function goVendorLogin(){location.href="RepairMitra_vendor_latest.html";}
+</script></body></html>
