@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RepairMitra Admin Dashboard</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+.wrap{max-width:1150px;margin:auto;padding:15px}
+.header{background:linear-gradient(135deg,#1769e0,#0d47a1);color:#fff;padding:22px;border-radius:20px;margin-bottom:15px}
+.header-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-size:28px;font-weight:bold}.tagline{margin-top:5px;font-size:14px;opacity:.95}
+.card{background:#fff;padding:20px;margin:14px 0;border-radius:18px;box-shadow:0 5px 20px #0000000d}
+input,select,button{width:100%;padding:13px;margin:7px 0;border-radius:10px;font-size:16px;font-family:Arial}
+input,select{border:1px solid #ccd4df;background:#fff}
+button{border:0;background:#1769e0;color:#fff;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+.gray{background:#e9eef7;color:#172033}.danger{background:#d92d20}.green{background:#16834b}
+.hidden{display:none!important}
+.msg{display:none;padding:12px;border-radius:10px;margin:10px 0;line-height:1.5}
+.err{background:#fde8e8;color:#a12626}.ok{background:#e5f7ea;color:#176b36}
+.small{font-size:13px;color:#667085}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.toolbar button{width:auto;padding:10px 14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:15px}
+.stat{background:#fff;border:1px solid #e0e6ef;border-radius:16px;padding:16px;min-height:105px}
+.stat .icon{font-size:24px}.stat .num{font-size:28px;font-weight:bold;margin-top:6px}.stat .label{font-size:13px;color:#667085;margin-top:4px}
+.stat.green{background:#f0fbf4}.stat.blue{background:#f2f7ff}.stat.orange{background:#fff9ed}.stat.purple{background:#f7f3ff}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.nav button{background:#eef3fa;color:#172033;border:1px solid #dbe3ef}
+.nav button.active{background:#1769e0;color:#fff;border-color:#1769e0}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:24px;padding:0 7px;border-radius:20px;background:#fff;color:#1769e0;font-size:12px;margin-left:5px}
+.section{display:none}.section.active{display:block}
+.item{border:1px solid #dfe5ed;padding:17px;margin:13px 0;border-radius:16px;background:#fff}
+.item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.status{display:inline-block;padding:6px 11px;border-radius:20px;font-size:13px;font-weight:bold}
+.pending{background:#fff4d6;color:#9a6700}.assigned{background:#e8f1ff;color:#1769e0}
+.accepted{background:#e7f7ee;color:#16794c}.repairing{background:#f0eaff;color:#6842c2}
+.completed{background:#dff7e7;color:#087443}.norepair{background:#fde8e8;color:#a12626}
+.info{background:#f5f8fc;border-radius:12px;padding:12px;margin:10px 0;line-height:1.6}
+.map-btn{display:inline-block;text-decoration:none;background:#e8f1ff;color:#1769e0;padding:9px 12px;border-radius:9px;font-weight:bold;margin-top:6px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.folder-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.empty{text-align:center;padding:30px;color:#667085}
+.footer{text-align:center;padding:25px 5px;color:#667085;font-size:13px}
+.login-box{max-width:520px;margin:35px auto}
+.forgot{display:block;text-align:center;margin:12px 0;color:#1769e0;font-weight:bold;text-decoration:none}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){
+ .header-row,.toolbar,.item-head{align-items:flex-start;flex-direction:column}
+ .nav{grid-template-columns:1fr 1fr}
+ .actions{grid-template-columns:1fr}
+ .stats{grid-template-columns:1fr 1fr}
+ .toolbar button{width:100%}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<div class="header">
+  <div class="header-row">
+    <div>
+      <div class="logo">RepairMitra 🛠️</div>
+      <div class="tagline">👑 Admin Panel — Dashboard, Complaints & Vendor Management</div>
+    </div>
+    <button id="topLogout" class="gray hidden" onclick="logout()">🚪 Logout</button>
+  </div>
+</div>
+
+<div class="card login-box" id="login">
+  <h2>👑 Admin Login</h2>
+  <p class="small">केवल Admin account से login करें।</p>
+  <input id="email" type="email" placeholder="Admin Email" autocomplete="email">
+  <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="loginBtn" onclick="login()">Login करें</button>
+
+  <!-- FORGOT PASSWORD — preserved -->
+  <a class="forgot" href="forgot-password.html">🔐 Password भूल गए?</a>
+
+  <div id="msg" class="msg"></div>
+</div>
+
+<div id="panel" class="hidden">
+
+  <div class="card">
+    <div class="toolbar">
+      <div>
+        <h2 style="margin:0">📊 Admin Dashboard</h2>
+        <p id="who" class="small"></p>
+      </div>
+      <button class="gray" onclick="load()">🔄 Refresh</button>
+    </div>
+    <div class="info">
+      📌 <b>New Complaints</b> मुख्य dashboard पर रहेंगी। बाकी complaints अलग sections में दिखाई देंगी।
+      Admin किसी complaint को delete भी कर सकता है।
+    </div>
+
+    <div class="stats">
+      <div class="stat blue"><div class="icon">👥</div><div id="totalCustomers" class="num">—</div><div class="label">Total Customers</div></div>
+      <div class="stat purple"><div class="icon">👨‍🔧</div><div id="totalVendors" class="num">—</div><div class="label">Total Vendors</div></div>
+      <div class="stat blue"><div class="icon">📋</div><div id="totalComplaints" class="num">—</div><div class="label">Total Complaints</div></div>
+      <div class="stat orange"><div class="icon">🆕</div><div id="pendingComplaints" class="num">—</div><div class="label">New / Pending</div></div>
+      <div class="stat blue"><div class="icon">👨‍🔧</div><div id="assignedComplaints" class="num">—</div><div class="label">Assigned</div></div>
+      <div class="stat purple"><div class="icon">🔧</div><div id="progressComplaints" class="num">—</div><div class="label">In Repair</div></div>
+      <div class="stat green"><div class="icon">✅</div><div id="completedComplaints" class="num">—</div><div class="label">Completed</div></div>
+      <div class="stat orange"><div class="icon">❌</div><div id="cancelledComplaints" class="num">—</div><div class="label">Cancelled / No Repair</div></div>
+      <div class="stat green"><div class="icon">💰</div><div id="revenue" class="num">—</div><div class="label">Completed Repair Amount</div></div>
+      <div class="stat orange"><div class="icon">⭐</div><div id="avgRating" class="num">—</div><div class="label">Average Rating</div></div>
+      <div class="stat blue"><div class="icon">📝</div><div id="totalReviews" class="num">—</div><div class="label">Total Reviews</div></div>
+      <div class="stat purple"><div class="icon">📅</div><div id="todayComplaints" class="num">—</div><div class="label">Today's Complaints</div></div>
+    </div>
+    <div id="statsMsg" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <div class="nav">
+      <button id="tabNew" class="active" onclick="showSection('new')">🆕 New <span id="newBadge" class="badge">0</span></button>
+      <button id="tabRepair" onclick="showSection('repair')">🔧 Repair <span id="repairBadge" class="badge">0</span></button>
+      <button id="tabComplete" onclick="showSection('complete')">✅ Complete <span id="completeBadge" class="badge">0</span></button>
+      <button id="tabCancelled" onclick="showSection('cancelled')">❌ Cancelled <span id="cancelledBadge" class="badge">0</span></button>
+    </div>
+  </div>
+
+  <!-- NEW COMPLAINTS: only this section is shown first -->
+  <div id="sectionNew" class="card section active">
+    <div class="folder-title">
+      <div>
+        <h2>🆕 New Complaints</h2>
+        <p class="small">नई / Pending complaints — सबसे पहले यही दिखाई जाएँगी।</p>
+      </div>
+    </div>
+    <div id="newList"><div class="small">Loading...</div></div>
+  </div>
+
+  <!-- REPAIR FOLDER -->
+  <div id="sectionRepair" class="card section">
+    <div class="folder-title">
+      <div>
+        <h2>🔧 Repair Folder</h2>
+        <p class="small">Assigned, Accepted और Repairing complaints.</p>
+      </div>
+    </div>
+    <div id="repairList"><div class="small">Loading...</div></div>
+  </div>
+
+  <!-- COMPLETE FOLDER -->
+  <div id="sectionComplete" class="card section">
+    <div class="folder-title">
+      <div>
+        <h2>✅ Complete Complaints</h2>
+        <p class="small">Successfully completed repair complaints.</p>
+      </div>
+    </div>
+    <div id="completeList"><div class="small">Loading...</div></div>
+  </div>
+
+  <!-- CANCELLED FOLDER -->
+  <div id="sectionCancelled" class="card section">
+    <div class="folder-title">
+      <div>
+        <h2>❌ Cancelled / No Repair</h2>
+        <p class="small">Cancelled और No Repair complaints.</p>
+      </div>
+    </div>
+    <div id="cancelledList"><div class="small">Loading...</div></div>
+  </div>
+
+  <!-- VENDORS PRESERVED -->
+  <div class="card">
+    <div class="toolbar">
+      <div>
+        <h2 style="margin:0">👨‍🔧 Registered Vendors</h2>
+        <p class="small">सभी registered vendor profiles</p>
+      </div>
+      <button style="width:auto;padding:10px 14px" onclick="load()">🔄 Refresh</button>
+    </div>
+    <div id="vendors"><div class="small">Loading...</div></div>
+  </div>
+
+</div>
+
+<div class="footer">RepairMitra 🛠️<br>Admin Control Panel</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=window.supabase.createClient(
+  "https://rqnmshqrwntxilwnhqwa.supabase.co",
+  "sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"
+);
+
+const $=id=>document.getElementById(id);
+
+function esc(v){
+  return String(v??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function showMsg(t,ok=false){
+  $("msg").textContent=t;
+  $("msg").className="msg "+(ok?"ok":"err");
+  $("msg").style.display="block";
+}
+
+function normalizedStatus(s){
+  return String(s||"").trim().toLowerCase();
+}
+
+function statusClass(s){
+  s=normalizedStatus(s);
+  if(s==="assigned")return"assigned";
+  if(s==="accepted")return"accepted";
+  if(s==="repairing"||s==="in progress")return"repairing";
+  if(s==="completed")return"completed";
+  if(s==="no repair"||s==="norepair"||s==="cancelled"||s==="canceled")return"norepair";
+  return"pending";
+}
+
+function isAdmin(uid){
+  return sb.from("admins").select("id").eq("id",uid).maybeSingle()
+    .then(r=>!r.error&&!!r.data);
+}
+
+function isNew(x){
+  const s=normalizedStatus(x.status);
+  return !s || s==="pending";
+}
+
+function isRepair(x){
+  const s=normalizedStatus(x.status);
+  return ["assigned","accepted","repairing","in progress"].includes(s);
+}
+
+function isComplete(x){
+  return normalizedStatus(x.status)==="completed";
+}
+
+function isCancelled(x){
+  return ["no repair","norepair","cancelled","canceled"].includes(normalizedStatus(x.status));
+}
+
+async function login(){
+  const email=$("email").value.trim();
+  const password=$("pass").value;
+
+  if(!email||!password)return showMsg("Email और Password भरें।");
+
+  const b=$("loginBtn");
+  b.disabled=true;
+  b.textContent="Login हो रहा है...";
+
+  const r=await sb.auth.signInWithPassword({email,password});
+
+  b.disabled=false;
+  b.textContent="Login करें";
+
+  if(r.error)return showMsg(r.error.message);
+
+  if(!(await isAdmin(r.data.user.id))){
+    await sb.auth.signOut();
+    return showMsg("यह account Admin नहीं है।");
+  }
+
+  $("login").classList.add("hidden");
+  $("panel").classList.remove("hidden");
+  $("topLogout").classList.remove("hidden");
+  $("who").textContent="Admin: "+email;
+
+  load();
+}
+
+function setStat(id,value){
+  $(id).textContent=value;
+}
+
+async function loadStats(){
+  $("statsMsg").style.display="none";
+
+  const today=new Date();
+  today.setHours(0,0,0,0);
+  const tomorrow=new Date(today);
+  tomorrow.setDate(tomorrow.getDate()+1);
+
+  const [profilesRes,complaintsRes,reviewsRes]=await Promise.all([
+    sb.from("profiles").select("role"),
+    sb.from("complaints").select("id,status,repair_charge,vendor_charge,created_at"),
+    sb.from("reviews").select("rating")
+  ]);
+
+  if(profilesRes.error||complaintsRes.error||reviewsRes.error){
+    const errors=[
+      profilesRes.error&&"Profiles: "+profilesRes.error.message,
+      complaintsRes.error&&"Complaints: "+complaintsRes.error.message,
+      reviewsRes.error&&"Reviews: "+reviewsRes.error.message
+    ].filter(Boolean).join(" | ");
+
+    $("statsMsg").textContent="Statistics Error: "+errors;
+    $("statsMsg").className="msg err";
+    $("statsMsg").style.display="block";
+    return;
+  }
+
+  const profiles=profilesRes.data||[];
+  const complaints=complaintsRes.data||[];
+  const reviews=reviewsRes.data||[];
+
+  const customers=profiles.filter(x=>x.role==="customer").length;
+  const vendors=profiles.filter(x=>x.role==="vendor").length;
+
+  let pending=0,assigned=0,progress=0,completed=0,cancelled=0,revenue=0,todayCount=0;
+
+  complaints.forEach(x=>{
+    const s=normalizedStatus(x.status);
+
+    if(isNew(x))pending++;
+    if(s==="assigned")assigned++;
+    if(["accepted","repairing","in progress"].includes(s))progress++;
+
+    if(s==="completed"){
+      completed++;
+      const amount=x.repair_charge!==null&&x.repair_charge!==undefined
+        ?Number(x.repair_charge||0)
+        :Number(x.vendor_charge||0);
+      revenue+=isNaN(amount)?0:amount;
+    }
+
+    if(isCancelled(x))cancelled++;
+
+    const d=new Date(x.created_at);
+    if(d>=today&&d<tomorrow)todayCount++;
+  });
+
+  const avg=reviews.length
+    ?reviews.reduce((sum,r)=>sum+Number(r.rating||0),0)/reviews.length
+    :0;
+
+  setStat("totalCustomers",customers.toLocaleString("en-IN"));
+  setStat("totalVendors",vendors.toLocaleString("en-IN"));
+  setStat("totalComplaints",complaints.length.toLocaleString("en-IN"));
+  setStat("pendingComplaints",pending.toLocaleString("en-IN"));
+  setStat("assignedComplaints",assigned.toLocaleString("en-IN"));
+  setStat("progressComplaints",progress.toLocaleString("en-IN"));
+  setStat("completedComplaints",completed.toLocaleString("en-IN"));
+  setStat("cancelledComplaints",cancelled.toLocaleString("en-IN"));
+  setStat("revenue","₹"+revenue.toLocaleString("en-IN",{maximumFractionDigits:2}));
+  setStat("avgRating",reviews.length?avg.toFixed(1)+" ⭐":"—");
+  setStat("totalReviews",reviews.length.toLocaleString("en-IN"));
+  setStat("todayComplaints",todayCount.toLocaleString("en-IN"));
+}
+
+function renderComplaint(x,vendors){
+  const selected=x.vendor_id||"";
+
+  const opts='<option value="">-- Vendor चुनें --</option>'+
+    vendors.map(y=>
+      '<option value="'+esc(y.id)+'" '+(y.id===selected?"selected":"")+'>'+
+      esc(y.full_name||"Vendor")+' — '+esc(y.phone||"")+
+      '</option>'
+    ).join("");
+
+  const hasLocation=
+    x.latitude!==null&&x.latitude!==undefined&&
+    x.longitude!==null&&x.longitude!==undefined;
+
+  const mapLink=hasLocation
+    ?'<a class="map-btn" target="_blank" rel="noopener" href="https://www.google.com/maps?q='+encodeURIComponent(x.latitude+","+x.longitude)+'">📍 Google Maps में Location खोलें</a>'
+    :"";
+
+  const quotation=(x.vendor_charge!==null&&x.vendor_charge!==undefined)
+    ?'<div class="info"><b>💰 Quotation:</b> ₹'+
+      Number(x.vendor_charge).toLocaleString("en-IN")+
+      '<br>'+esc(x.vendor_note||x.quotation_note||"")+'</div>'
+    :"";
+
+  return '<div class="item">'+
+    '<div class="item-head">'+
+      '<div><h3 style="margin-top:0">📱 Complaint #'+esc(x.id)+'</h3>'+
+      '<div class="small">'+esc(x.brand||"")+" — "+esc(x.model||"")+'</div></div>'+
+      '<span class="status '+statusClass(x.status)+'">'+esc(x.status||"Pending")+'</span>'+
+    '</div>'+
+
+    '<div class="info">'+
+      '<b>🔧 Problem:</b> '+esc(x.issue||"")+
+      '<br><b>📝 Description:</b> '+esc(x.description||"")+
+      '<br><b>📞 Phone:</b> '+esc(x.phone||"")+
+      '<br><b>📍 Address:</b> '+esc(x.address||"")+
+      (hasLocation
+        ?'<br><b>🌐 GPS:</b> '+esc(x.latitude)+', '+esc(x.longitude)+
+         (x.location_accuracy!==null&&x.location_accuracy!==undefined
+           ?' <span class="small">(Accuracy: '+esc(x.location_accuracy)+' m)</span>'
+           :"")+
+         '<br>'+mapLink
+        :"")+
+      '<br><b>📅 Date:</b> '+esc(x.created_at?new Date(x.created_at).toLocaleString("hi-IN"):"")+
+    '</div>'+
+
+    quotation+
+
+    '<label class="small">👨‍🔧 Assign Vendor</label>'+
+    '<select id="v'+esc(x.id)+'">'+opts+'</select>'+
+    '<div class="actions">'+
+      '<button onclick="assign('+JSON.stringify(x.id)+',this)">👨‍🔧 Vendor Assign करें</button>'+
+      '<button class="danger" onclick="deleteComplaint('+JSON.stringify(x.id)+',this)">🗑️ Complaint Delete करें</button>'+
+    '</div>'+
+  '</div>';
+}
+
+async function load(){
+  $("newList").innerHTML='<div class="small">⏳ New complaints loading...</div>';
+  $("repairList").innerHTML='<div class="small">⏳ Repair complaints loading...</div>';
+  $("completeList").innerHTML='<div class="small">⏳ Completed complaints loading...</div>';
+  $("cancelledList").innerHTML='<div class="small">⏳ Cancelled complaints loading...</div>';
+  $("vendors").innerHTML='<div class="small">⏳ Vendors loading...</div>';
+
+  await loadStats();
+
+  const [c,v]=await Promise.all([
+    sb.from("complaints")
+      .select("id,user_id,customer_id,brand,model,phone,issue,description,address,status,vendor_id,vendor_charge,vendor_note,repair_charge,quotation_note,quotation_status,latitude,longitude,location_accuracy,created_at,updated_at")
+      .order("created_at",{ascending:false}),
+    sb.from("profiles")
+      .select("id,full_name,phone,role,created_at")
+      .eq("role","vendor")
+      .order("full_name")
+  ]);
+
+  if(v.error){
+    $("vendors").innerHTML='<div class="msg err" style="display:block">Vendor Error: '+esc(v.error.message)+'</div>';
+  }else{
+    const vendorHtml=v.data?.length
+      ?v.data.map(y=>
+        '<div class="item">'+
+          '<h3>👨‍🔧 '+esc(y.full_name||"Vendor")+'</h3>'+
+          '<div class="info"><b>📞 Phone:</b> '+esc(y.phone||"Not provided")+
+          '<br><b>🆔 ID:</b> '+esc(y.id)+
+          '<br><b>📅 Registered:</b> '+esc(y.created_at?new Date(y.created_at).toLocaleString("hi-IN"):"")+
+          '</div>'+
+        '</div>'
+      ).join("")
+      :'<div class="info">📭 अभी कोई Vendor profile नहीं मिली।</div>';
+
+    $("vendors").innerHTML=vendorHtml;
+  }
+
+  if(c.error){
+    const error='<div class="msg err" style="display:block">Complaint Error: '+esc(c.error.message)+'</div>';
+    $("newList").innerHTML=error;
+    $("repairList").innerHTML=error;
+    $("completeList").innerHTML=error;
+    $("cancelledList").innerHTML=error;
+    return;
+  }
+
+  const complaints=c.data||[];
+  const vendors=v.data||[];
+
+  const groups={
+    new:complaints.filter(isNew),
+    repair:complaints.filter(isRepair),
+    complete:complaints.filter(isComplete),
+    cancelled:complaints.filter(isCancelled)
+  };
+
+  $("newBadge").textContent=groups.new.length;
+  $("repairBadge").textContent=groups.repair.length;
+  $("completeBadge").textContent=groups.complete.length;
+  $("cancelledBadge").textContent=groups.cancelled.length;
+
+  $("newList").innerHTML=groups.new.length
+    ?groups.new.map(x=>renderComplaint(x,vendors)).join("")
+    :'<div class="empty">🎉 अभी कोई नई complaint नहीं है।</div>';
+
+  $("repairList").innerHTML=groups.repair.length
+    ?groups.repair.map(x=>renderComplaint(x,vendors)).join("")
+    :'<div class="empty">🔧 अभी Repair folder में कोई complaint नहीं है।</div>';
+
+  $("completeList").innerHTML=groups.complete.length
+    ?groups.complete.map(x=>renderComplaint(x,vendors)).join("")
+    :'<div class="empty">📭 अभी कोई completed complaint नहीं है।</div>';
+
+  $("cancelledList").innerHTML=groups.cancelled.length
+    ?groups.cancelled.map(x=>renderComplaint(x,vendors)).join("")
+    :'<div class="empty">📭 अभी कोई cancelled / no repair complaint नहीं है।</div>';
+}
+
+function showSection(name){
+  const map={
+    new:["sectionNew","tabNew"],
+    repair:["sectionRepair","tabRepair"],
+    complete:["sectionComplete","tabComplete"],
+    cancelled:["sectionCancelled","tabCancelled"]
+  };
+
+  Object.keys(map).forEach(k=>{
+    $(map[k][0]).classList.toggle("active",k===name);
+    $(map[k][1]).classList.toggle("active",k===name);
+  });
+}
+
+async function assign(id,button){
+  const vendorEl=$("v"+id);
+  const vendor=vendorEl?.value;
+
+  if(!vendor)return alert("पहले Vendor चुनें।");
+
+  const session=await sb.auth.getSession();
+  const uid=session.data.session?.user?.id;
+
+  if(!uid||!(await isAdmin(uid)))
+    return alert("Admin session valid नहीं है।");
+
+  button.disabled=true;
+  button.textContent="Assign हो रहा है...";
+
+  const r=await sb.from("complaints")
+    .update({
+      vendor_id:vendor,
+      status:"Assigned",
+      updated_at:new Date().toISOString()
+    })
+    .eq("id",id);
+
+  button.disabled=false;
+  button.textContent="👨‍🔧 Vendor Assign करें";
+
+  if(r.error)return alert("Assign Error: "+r.error.message);
+
+  alert("✅ Vendor successfully assign हो गया।");
+  await load();
+  showSection("repair");
+}
+
+async function deleteComplaint(id,button){
+  const session=await sb.auth.getSession();
+  const uid=session.data.session?.user?.id;
+
+  if(!uid||!(await isAdmin(uid)))
+    return alert("Admin session valid नहीं है।");
+
+  const ok=confirm(
+    "⚠️ क्या आप Complaint #"+id+" को हमेशा के लिए delete करना चाहते हैं?\n\n"+
+    "यह action वापस नहीं किया जा सकता।"
+  );
+
+  if(!ok)return;
+
+  button.disabled=true;
+  button.textContent="Delete हो रही है...";
+
+  const r=await sb.from("complaints").delete().eq("id",id);
+
+  button.disabled=false;
+  button.textContent="🗑️ Complaint Delete करें";
+
+  if(r.error){
+    alert(
+      "❌ Complaint delete नहीं हुई।\n\n"+
+      r.error.message+
+      "\n\nअगर यह RLS permission error है तो Admin DELETE policy अभी लगानी होगी।"
+    );
+    return;
+  }
+
+  alert("✅ Complaint successfully delete हो गई।");
+  await load();
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  location.reload();
+}
+
+sb.auth.getSession().then(async r=>{
+  const u=r.data.session?.user;
+
+  if(u&&await isAdmin(u.id)){
+    $("login").classList.add("hidden");
+    $("panel").classList.remove("hidden");
+    $("topLogout").classList.remove("hidden");
+    $("who").textContent="Admin: "+(u.email||"");
+    load();
+  }
+});
+</script>
+</body>
+</html>
