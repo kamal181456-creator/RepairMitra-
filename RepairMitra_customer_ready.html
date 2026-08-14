@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RepairMitra Customer</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:#172033}.wrap{max-width:760px;margin:auto;padding:15px}.header{background:linear-gradient(135deg,#1769e0,#0d47a1);color:#fff;padding:20px;border-radius:20px;margin-bottom:15px;box-shadow:0 8px 25px #1769e033}.header-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.logo{font-size:26px;font-weight:bold}.tagline{margin-top:6px;font-size:14px}.card{background:#fff;border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 5px 20px #0000000d}h2{margin-top:0}input,select,textarea,button{width:100%;padding:13px;margin:7px 0;border-radius:10px;font-size:16px;font-family:Arial}input,select,textarea{border:1px solid #ccd4df;background:#fff}textarea{min-height:90px;resize:vertical}button{border:0;background:#1769e0;color:#fff;font-weight:bold;cursor:pointer}button:disabled{opacity:.6}.gray{background:#e9eef7;color:#172033}.danger{background:#b42318;color:#fff}.hidden{display:none!important}.msg{display:none;padding:12px;border-radius:10px;margin:10px 0;line-height:1.5}.ok{background:#e5f7ea;color:#176b36}.err{background:#fde8e8;color:#a12626}.small{font-size:13px;color:#667085}.user-info{display:flex;align-items:center;gap:14px}.avatar{width:52px;height:52px;min-width:52px;border-radius:50%;background:#e8f1ff;color:#1769e0;display:flex;align-items:center;justify-content:center;font-size:25px}.complaint{border:1px solid #e0e5ed;border-radius:18px;padding:17px;margin:14px 0;background:#fff}.complaint-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.complaint h3{margin:0 0 8px}.row{margin:9px 0;line-height:1.5}.status{display:inline-block;padding:7px 12px;border-radius:20px;font-size:13px;font-weight:bold;background:#eef2ff;color:#1769e0}.status.Pending{background:#fff4d6;color:#9a6700}.status.Assigned{background:#e8f1ff;color:#1769e0}.status.Accepted{background:#e7f7ee;color:#16794c}.status.Repairing{background:#f0eaff;color:#6842c2}.status.Completed{background:#dff7e7;color:#087443}.status.NoRepair{background:#fff0e0;color:#b45309}.status.Cancelled{background:#fde8e8;color:#a12626}.info{background:#f5f8fc;border-radius:12px;padding:13px;margin-top:12px;line-height:1.6}.technician{background:#eef7ff;border:1px solid #cfe5ff;border-radius:16px;padding:16px;margin-top:16px}.technician-title{font-size:18px;font-weight:bold;color:#1769e0;margin-bottom:10px}.quotation{background:#fff8e6;border:2px solid #f0d58a;border-radius:16px;padding:16px;margin-top:16px}.quotation-title{font-size:18px;font-weight:bold;color:#765300}.quotation-price{font-size:30px;font-weight:bold;color:#9a6700;margin:8px 0}.quotation-note{background:#fff;border-radius:10px;padding:12px;margin-top:10px;line-height:1.5}.quote-pending{background:#f5f8fc;border:1px dashed #ccd4df;border-radius:14px;padding:14px;margin-top:16px;color:#667085}.empty,.loading{text-align:center;padding:25px 10px;color:#667085}.location-box{background:#eef7ff;border:1px solid #cfe5ff;border-radius:14px;padding:13px;margin-top:10px}.location-btn{background:#0b7a52}.location-btn.secondary{background:#5b6472}.footer{text-align:center;padding:25px 5px;color:#667085;font-size:13px}.top-actions{display:flex;gap:8px}.top-actions button{width:auto;margin:0;padding:9px 13px;background:#ffffff22;border:1px solid #ffffff55}.stars{display:flex;gap:5px;margin:10px 0}.star{width:auto;background:#eef2ff;color:#1769e0;border:1px solid #ccd4df;font-size:22px;padding:7px 10px;margin:0}.star.selected{background:#1769e0;color:#fff}.review-box{background:#f8fafc;border:1px solid #e0e5ed;border-radius:14px;padding:14px;margin-top:14px}@media(max-width:600px){.header-top{align-items:flex-start}.logo{font-size:23px}.complaint-header{flex-direction:column}.top-actions{flex-direction:column}.top-actions button{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="header">
+  <div class="header-top">
+    <div><div class="logo">RepairMitra 🛠️</div><div class="tagline">📱 घर बैठे मोबाइल रिपेयरिंग सेवा</div></div>
+    <div class="top-actions"><button id="topRefreshBtn">🔄 Refresh</button><button id="topLogoutBtn">Logout</button></div>
+  </div>
+</div>
+
+<div id="loginBox" class="card">
+  <h2>👤 Customer Login</h2>
+  <p class="small">अपने account से login करके repair complaint दर्ज करें और उसका status देखें।</p>
+  <input id="email" type="email" placeholder="Email Address" autocomplete="email">
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="loginBtn">Login करें</button>
+  <div id="loginMsg" class="msg"></div>
+</div>
+
+<div id="dashboard" class="hidden">
+  <div class="card">
+    <div class="user-info"><div class="avatar">👤</div><div><h2 style="margin:0">Welcome 👋</h2><div id="userEmail" class="small"></div></div></div>
+    <div class="info">📌 यहाँ आपकी repair complaints, technician assignment, quotation और repair status दिखाई देगा।</div>
+  </div>
+
+  <div class="card">
+    <h2>🛠️ नई Repair Booking</h2>
+    <p class="small">मोबाइल की सही जानकारी भरें ताकि technician आपकी समस्या समझ सके।</p>
+    <select id="brand"><option value="">मोबाइल ब्रांड चुनें</option><option>Samsung</option><option>Apple iPhone</option><option>Vivo</option><option>Oppo</option><option>Realme</option><option>Redmi</option><option>OnePlus</option><option>Motorola</option><option>Nothing</option><option>Other</option></select>
+    <input id="model" placeholder="मोबाइल मॉडल जैसे Samsung M20">
+    <input id="phone" type="tel" inputmode="tel" placeholder="Customer Mobile Number">
+    <select id="issue"><option value="">मोबाइल की समस्या चुनें</option><option>Display / Touch</option><option>Charging</option><option>Battery</option><option>Network / SIM</option><option>Speaker / Mic</option><option>Camera</option><option>Software / Hang</option><option>Water Damage</option><option>Other</option></select>
+    <textarea id="description" placeholder="मोबाइल की समस्या के बारे में पूरी जानकारी लिखें"></textarea>
+    <textarea id="address" placeholder="Pickup / Service Address"></textarea>
+    <div class="location-box">
+      <b>📍 Location</b>
+      <div class="small">GPS location से आपका address field अपने आप भरने में मदद मिलेगी। Browser permission मांगे तो Allow करें।</div>
+      <button type="button" id="locationBtn" class="location-btn">📍 मेरी Current Location लें</button>
+      <div id="locationMsg" class="small"></div>
+    </div>
+    <button id="submitBtn">📋 Complaint Submit करें</button>
+    <div id="submitMsg" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>🔔 Notifications</h2>
+    <div id="notifications"><div class="loading">Notifications loading...</div></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 मेरी Complaints</h2>
+    <p class="small">Status, Technician और Quotation यहाँ देखें।</p>
+    <div id="complaints"><div class="loading">⏳ Complaints Loading...</div></div>
+  </div>
+
+  <div class="card"><button id="refreshBtn" class="gray">🔄 Status Refresh करें</button><button id="logoutBtn" class="gray">🚪 Logout</button></div>
+</div>
+
+<div class="footer">RepairMitra 🛠️<br>Trusted Mobile Repair Service</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=window.supabase.createClient('https://rqnmshqrwntxilwnhqwa.supabase.co','sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v');
+const $=id=>document.getElementById(id);
+let currentUser=null;
+let selectedRating=0;
+
+function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function msg(id,text,ok=false){const e=$(id);if(!e)return;e.textContent=text;e.className='msg '+(ok?'ok':'err');e.style.display='block'}
+function formatDate(v){if(!v)return '—';try{return new Date(v).toLocaleString('hi-IN',{dateStyle:'medium',timeStyle:'short'})}catch{return v}}
+function normalizeStatus(s){return String(s||'Pending').replace(/\s+/g,'').replace(/-/g,'')}
+
+function show(u){
+ currentUser=u;
+ $('loginBox').classList.add('hidden');
+ $('dashboard').classList.remove('hidden');
+ $('userEmail').textContent='Login: '+(u.email||'');
+ loadAll(u.id);
+}
+
+async function login(){
+ const email=$('email').value.trim(), password=$('password').value;
+ if(!email||!password)return msg('loginMsg','Email और Password भरें।');
+ const b=$('loginBtn');b.disabled=true;b.textContent='Login हो रहा है...';
+ const r=await sb.auth.signInWithPassword({email,password});
+ b.disabled=false;b.textContent='Login करें';
+ if(r.error)return msg('loginMsg',r.error.message);
+ show(r.data.user);
+}
+
+async function submitComplaint(){
+ const s=await sb.auth.getSession(); const u=s.data.session?.user;
+ if(!u)return msg('submitMsg','Session समाप्त हो गया है। कृपया दोबारा Login करें।');
+ const brand=$('brand').value, model=$('model').value.trim(), phone=$('phone').value.trim(), issue=$('issue').value, description=$('description').value.trim(), address=$('address').value.trim();
+ if(!brand||!model||!phone||!issue||!description||!address)return msg('submitMsg','कृपया सभी जानकारी भरें।');
+ const b=$('submitBtn');b.disabled=true;b.textContent='Complaint Submit हो रही है...';
+ try{
+   // customer_id is used because the current RLS policy allows the logged-in customer by customer_id.
+   const payload={customer_id:u.id,user_id:u.id,brand,model,phone,issue,description,address,status:'Pending'};
+   const r=await sb.from('complaints').insert(payload).select().single();
+   if(r.error)throw r.error;
+   msg('submitMsg','✅ आपकी Complaint सफलतापूर्वक दर्ज हो गई।',true);
+   clearForm();
+   await loadAll(u.id);
+ }catch(e){msg('submitMsg','Database Error: '+(e.message||e))}
+ finally{b.disabled=false;b.textContent='📋 Complaint Submit करें'}
+}
+function clearForm(){['brand','model','phone','issue','description','address'].forEach(id=>{if($(id))$(id).value=''})}
+
+async function loadAll(uid){await Promise.all([loadComplaints(uid),loadNotifications(uid)]);}
+
+async function loadComplaints(uid){
+ $('complaints').innerHTML='<div class="loading">⏳ आपकी Complaints Loading...</div>';
+ const r=await sb.from('complaints').select('id,customer_id,user_id,brand,model,phone,issue,description,address,status,vendor_id,vendor_charge,vendor_note,repair_charge,quotation_note,quotation_status,created_at,updated_at').eq('customer_id',uid).order('created_at',{ascending:false});
+ if(r.error){$('complaints').innerHTML='<div class="msg err" style="display:block">❌ Complaints Load Error:<br>'+escapeHtml(r.error.message)+'</div>';return}
+ if(!r.data?.length){$('complaints').innerHTML='<div class="empty"><div style="font-size:45px">📭</div><h3>अभी कोई complaint नहीं मिली।</h3><p>ऊपर से नई Repair Booking करें।</p></div>';return}
+ $('complaints').innerHTML=r.data.map(complaintCard).join('');
+}
+
+function complaintCard(c){
+ const status=c.status||'Pending', cls=normalizeStatus(status);
+ let html=`<div class="complaint"><div class="complaint-header"><div><h3>📱 Complaint #${escapeHtml(c.id)}</h3><div class="small">${escapeHtml(c.brand||'')} - ${escapeHtml(c.model||'')}</div></div><span class="status ${escapeHtml(cls)}">${escapeHtml(status)}</span></div>`;
+ html+=`<div class="row"><b>🔧 समस्या:</b> ${escapeHtml(c.issue||'')}</div><div class="row"><b>📝 जानकारी:</b> ${escapeHtml(c.description||'')}</div><div class="row"><b>📞 Phone:</b> ${escapeHtml(c.phone||'')}</div><div class="row"><b>📍 Address:</b> ${escapeHtml(c.address||'')}</div><div class="row small">📅 ${escapeHtml(formatDate(c.created_at))}</div>`;
+ if(c.vendor_id||c.vendor_charge||c.vendor_note){html+=`<div class="technician"><div class="technician-title">👨‍🔧 Technician / Vendor</div>${c.vendor_id?`<div class="tech-row"><b>Vendor ID:</b> ${escapeHtml(c.vendor_id)}</div>`:''}${c.vendor_charge!=null?`<div class="tech-row"><b>Vendor Charge:</b> ₹${escapeHtml(c.vendor_charge)}</div>`:''}${c.vendor_note?`<div class="tech-row"><b>Note:</b> ${escapeHtml(c.vendor_note)}</div>`:''}</div>`}
+ if(c.repair_charge!=null||c.quotation_note||c.quotation_status){html+=`<div class="quotation"><div class="quotation-title">💰 Repair Quotation</div>${c.repair_charge!=null?`<div class="quotation-price">₹${escapeHtml(c.repair_charge)}</div>`:'<div class="quote-pending">Quotation amount अभी उपलब्ध नहीं है।</div>'}${c.quotation_status?`<div class="row"><b>Status:</b> ${escapeHtml(c.quotation_status)}</div>`:''}${c.quotation_note?`<div class="quotation-note">${escapeHtml(c.quotation_note)}</div>`:''}</div>`}
+ if(String(status).toLowerCase()==='completed'){html+=ratingBox(c.id)}
+ html+='</div>';return html;
+}
+
+function ratingBox(id){return `<div class="review-box"><b>⭐ Repair Service को Rate करें</b><div class="small">Rating केवल इस browser में save होगी जब तक आपके rating table का exact schema इस file में जोड़ना न हो।</div><div class="stars" id="stars-${id}">${[1,2,3,4,5].map(n=>`<button type="button" class="star" onclick="selectRating(${id},${n})">★</button>`).join('')}</div><textarea id="review-${id}" placeholder="अपने अनुभव के बारे में लिखें (optional)"></textarea><button type="button" onclick="saveLocalRating(${id})">⭐ Rating Save करें</button><div id="rating-msg-${id}" class="small"></div></div>`}
+function selectRating(id,n){selectedRating=n;const box=$('stars-'+id);if(box)[...box.querySelectorAll('.star')].forEach((b,i)=>b.classList.toggle('selected',i<n));}
+function saveLocalRating(id){if(!selectedRating){const e=$('rating-msg-'+id);e.textContent='पहले rating चुनें।';return}localStorage.setItem('repairmitra_rating_'+id,JSON.stringify({rating:selectedRating,review:$('review-'+id)?.value||'',saved_at:new Date().toISOString()}));const e=$('rating-msg-'+id);e.textContent='✅ Rating इस device पर save हो गई।';}
+
+async function loadNotifications(uid){
+ // Optional: the notification trigger may already create notification rows. We do not let a missing table break booking or complaints.
+ const box=$('notifications');
+ const r=await sb.from('notifications').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(20);
+ if(r.error){box.innerHTML='<div class="info">🔔 Notifications service अभी उपलब्ध नहीं है। आपकी booking और complaints इससे प्रभावित नहीं होंगी।</div>';return}
+ if(!r.data?.length){box.innerHTML='<div class="info">🔔 अभी कोई नई notification नहीं है।</div>';return}
+ box.innerHTML=r.data.map(n=>`<div class="info"><b>${escapeHtml(n.title||'RepairMitra')}</b><br>${escapeHtml(n.message||n.body||'Notification')}<div class="small">${escapeHtml(formatDate(n.created_at))}</div></div>`).join('');
+}
+
+function getLocation(){
+ const out=$('locationMsg');
+ if(!navigator.geolocation){out.textContent='इस browser में GPS उपलब्ध नहीं है।';return}
+ out.textContent='📍 Location प्राप्त की जा रही है...';
+ navigator.geolocation.getCurrentPosition(pos=>{
+   const lat=pos.coords.latitude.toFixed(6),lng=pos.coords.longitude.toFixed(6);
+   const current=$('address').value.trim();
+   const gps=`GPS: ${lat}, ${lng}`;
+   $('address').value=current?current+'\n'+gps:gps;
+   out.textContent='✅ Current GPS location address में जोड़ दी गई।';
+ },err=>{out.textContent='❌ Location नहीं मिली: '+(err.message||'Permission denied');},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+
+async function refresh(){if(currentUser){await loadAll(currentUser.id);msg('submitMsg','🔄 Status और notifications refresh हो गए।',true)}}
+async function logout(){await sb.auth.signOut();location.reload()}
+
+$('loginBtn').onclick=login;$('submitBtn').onclick=submitComplaint;$('locationBtn').onclick=getLocation;$('refreshBtn').onclick=refresh;$('topRefreshBtn').onclick=refresh;$('logoutBtn').onclick=logout;$('topLogoutBtn').onclick=logout;
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+
+sb.auth.onAuthStateChange((event,session)=>{if(session&&!currentUser)show(session.user);if(!session&&event==='SIGNED_OUT')location.reload()});
+sb.auth.getSession().then(r=>{if(r.data.session)show(r.data.session.user)});
+</script>
+</body>
+</html>
