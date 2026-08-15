@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RepairMitra Admin</title>
+<meta name="theme-color" content="#101828">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#172033}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.login{max-width:430px;margin:70px auto;padding:18px}.card{background:#fff;border:1px solid #e5eaf1;border-radius:20px;padding:20px;box-shadow:0 8px 30px #0000000b;margin:14px 0}
+.logo{text-align:center}.logo div{font-size:48px}.logo h1{margin:5px 0}.small{font-size:13px;color:#667085}
+input,select,textarea{width:100%;padding:13px;margin:7px 0;border:1px solid #ccd5e2;border-radius:12px;outline:0}input:focus,select:focus,textarea:focus{border-color:#1769e0}
+.btn{border:0;border-radius:12px;padding:12px 15px;background:#1769e0;color:#fff;font-weight:800}.btn.full{width:100%;margin-top:8px}.btn.secondary{background:#eef2f7;color:#172033}.btn.danger{background:#c62828}.btn.success{background:#16834b}
+.msg{display:none;padding:11px;border-radius:12px;margin:9px 0}.ok{background:#e7f7ed;color:#146c3b}.err{background:#fde8e8;color:#a12626}
+.app{max-width:1200px;margin:auto;padding:12px}.top{background:linear-gradient(135deg,#101828,#243b68);color:#fff;border-radius:22px;padding:18px}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{display:flex;gap:12px;align-items:center}.brand-icon{width:48px;height:48px;border-radius:15px;background:#ffffff18;display:grid;place-items:center;font-size:26px}.brand h1{margin:0;font-size:22px}.nav{display:flex;gap:8px;overflow:auto;margin-top:15px}.nav button{white-space:nowrap;border:1px solid #ffffff22;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:11px}.nav button.active,.nav button:hover{background:#fff;color:#101828}
+.tab{display:none}.tab.active{display:block}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:#fff;border:1px solid #e5eaf1;border-radius:17px;padding:17px}.stat b{display:block;font-size:26px;margin-top:7px}
+.section{display:flex;justify-content:space-between;align-items:center;gap:10px}.section h2{margin:0}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:720px}.table th,.table td{text-align:left;padding:12px;border-bottom:1px solid #edf0f4;font-size:13px}.table th{background:#f8fafc}.pill{display:inline-block;padding:6px 10px;border-radius:20px;font-size:12px;font-weight:800}.available{background:#e7f7ed;color:#14743e}.low{background:#fff4d6;color:#966400}.out{background:#fde8e8;color:#a12626}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}.empty{text-align:center;padding:35px;color:#667085}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}.filters,.grid{grid-template-columns:1fr}.top{border-radius:17px}}
+</style>
+</head>
+<body>
+
+<section id="loginScreen" class="login">
+<div class="card">
+<div class="logo"><div>🔐</div><h1>RepairMitra Admin</h1><p class="small">Private administration panel</p></div>
+<input id="email" type="email" placeholder="Admin Email">
+<input id="password" type="password" placeholder="Admin Password">
+<button id="loginBtn" class="btn full" onclick="adminLogin()">Sign In</button>
+<div id="loginMsg" class="msg"></div>
+</div>
+</section>
+
+<section id="app" class="app hidden">
+<header class="top">
+<div class="topline"><div class="brand"><div class="brand-icon">🛠️</div><div><h1>RepairMitra Admin</h1><div class="small" style="color:#cbd5e1">Management Console</div></div></div><button class="btn secondary" onclick="logout()">Sign Out</button></div>
+<nav class="nav">
+<button id="navDashboard" class="active" onclick="showTab('dashboard')">📊 Dashboard</button>
+<button onclick="showTab('products')">📦 Products</button>
+<button onclick="showTab('stock')">📈 Stock</button>
+<button onclick="showTab('customers')">👥 Customers</button>
+<button onclick="showTab('complaints')">🔧 Repairs</button>
+<button onclick="showTab('vendors')">👨‍🔧 Vendors</button>
+</nav>
+</header>
+
+<div id="tab-dashboard" class="tab active">
+<div class="stats">
+<div class="stat">Products<b id="sProducts">0</b></div><div class="stat">Stock Units<b id="sStock">0</b></div><div class="stat">Customers<b id="sCustomers">0</b></div><div class="stat">Open Repairs<b id="sRepairs">0</b></div>
+</div>
+<div class="card"><div class="section"><div><h2>⚠️ Low Stock</h2><p class="small">Products at or below the low-stock limit.</p></div><button class="btn secondary" onclick="showTab('stock')">View Stock</button></div><div id="lowStock"></div></div>
+<div class="card"><h2>⚡ Quick Actions</h2><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn" onclick="openProduct()">➕ Add Product</button><button class="btn secondary" onclick="showTab('complaints')">🔧 Manage Repairs</button><button class="btn secondary" onclick="showTab('customers')">👥 Customers</button></div></div>
+</div>
+
+<div id="tab-products" class="tab">
+<div class="card"><div class="section"><div><h2>📦 Product Management</h2><p class="small">Add, edit and remove products.</p></div><button class="btn" onclick="openProduct()">➕ Add Product</button></div>
+<div class="filters"><input id="productSearch" oninput="renderProducts()" placeholder="Search product, brand or SKU"><select id="productCategory" onchange="renderProducts()"><option value="">All Categories</option><option>New Mobile</option><option>Old Mobile</option><option>Keypad Mobile</option><option>Footwear</option><option>Accessories</option></select><select id="productStatus" onchange="renderProducts()"><option value="">All Stock Status</option><option value="available">Available</option><option value="low">Low Stock</option><option value="out">Out of Stock</option></select></div>
+<div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody id="productRows"></tbody></table></div></div>
+</div>
+
+<div id="tab-stock" class="tab">
+<div class="card"><div class="section"><div><h2>📈 Stock Management</h2><p class="small">Update stock quantity and monitor inventory.</p></div><button class="btn" onclick="openProduct()">➕ Add Product</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th>SKU</th><th>Current Stock</th><th>Low Limit</th><th>Status</th><th>Update</th></tr></thead><tbody id="stockRows"></tbody></table></div></div>
+</div>
+
+<div id="tab-customers" class="tab">
+<div class="card"><div class="section"><div><h2>👥 Customers</h2><p class="small">Registered customer accounts.</p></div><button class="btn secondary" onclick="loadCustomers()">Refresh</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Email</th><th>Name</th><th>Phone</th><th>Joined</th></tr></thead><tbody id="customerRows"></tbody></table></div></div>
+</div>
+
+<div id="tab-complaints" class="tab">
+<div class="card"><div class="section"><div><h2>🔧 Repair Complaints</h2><p class="small">Review repair requests and assign vendors.</p></div><button class="btn secondary" onclick="loadComplaints()">Refresh</button></div><div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Customer/User</th><th>Mobile</th><th>Problem</th><th>Status</th><th>Vendor ID</th><th>Action</th></tr></thead><tbody id="complaintRows"></tbody></table></div></div>
+</div>
+
+<div id="tab-vendors" class="tab">
+<div class="card"><div class="section"><div><h2>👨‍🔧 Vendors</h2><p class="small">Vendor management foundation for Phase 1.</p></div><button class="btn secondary" onclick="loadVendors()">Refresh</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Vendor ID</th><th>Email</th><th>Status</th><th>Joined</th></tr></thead><tbody id="vendorRows"></tbody></table></div></div>
+</div>
+</section>
+
+<div id="productModal" class="hidden" style="position:fixed;inset:0;background:#0008;z-index:50;padding:18px;display:none;place-items:center">
+<div class="card" style="max-width:650px;width:100%;max-height:92vh;overflow:auto">
+<div class="section"><h2 id="modalTitle">➕ Add Product</h2><button class="btn secondary" onclick="closeProduct()">✕</button></div>
+<input id="pName" placeholder="Product Name">
+<div class="grid"><select id="pCategory"><option>New Mobile</option><option>Old Mobile</option><option>Keypad Mobile</option><option>Footwear</option><option>Accessories</option></select><input id="pBrand" placeholder="Brand"></div>
+<div class="grid"><input id="pModel" placeholder="Model"><input id="pSku" placeholder="SKU / Product Code"></div>
+<div class="grid"><input id="pPrice" type="number" min="0" placeholder="Selling Price (₹)"><input id="pPurchase" type="number" min="0" placeholder="Purchase Price (₹)"></div>
+<div class="grid"><input id="pStock" type="number" min="0" placeholder="Stock Quantity"><input id="pLow" type="number" min="0" value="5" placeholder="Low Stock Limit"></div>
+<input id="pImage" placeholder="Product Image URL (optional)">
+<textarea id="pDescription" placeholder="Product Description"></textarea>
+<input type="hidden" id="pId">
+<button class="btn full" onclick="saveProduct()">Save Product</button><div id="productMsg" class="msg"></div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=window.supabase.createClient("https://rqnmshqrwntxilwnhqwa.supabase.co","sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v");
+let products=[],complaints=[],customers=[],vendors=[];
+const $=id=>document.getElementById(id);
+function msg(id,text,ok=false){$(id).textContent=text;$(id).className="msg "+(ok?"ok":"err");$(id).style.display="block"}
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function showTab(t){
+document.querySelectorAll("#app .tab").forEach(x=>x.classList.remove("active"));$("tab-"+t).classList.add("active");
+document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+if(t==="dashboard")$("navDashboard").classList.add("active");
+if(t==="products")loadProducts();if(t==="stock")loadProducts();if(t==="customers")loadCustomers();if(t==="complaints")loadComplaints();if(t==="vendors")loadVendors();
+window.scrollTo({top:0,behavior:"smooth"});
+}
+async function adminLogin(){
+const email=$("email").value.trim(),password=$("password").value;if(!email||!password)return msg("loginMsg","Enter admin email and password.");
+$("loginBtn").disabled=true;$("loginBtn").textContent="Signing In...";
+const r=await sb.auth.signInWithPassword({email,password});
+$("loginBtn").disabled=false;$("loginBtn").textContent="Sign In";
+if(r.error)return msg("loginMsg",r.error.message);
+$("loginScreen").classList.add("hidden");$("app").classList.remove("hidden");loadAll();
+}
+async function logout(){await sb.auth.signOut();location.reload()}
+async function loadAll(){await loadProducts();await loadComplaints();await loadCustomers();await loadVendors();updateDashboard()}
+async function loadProducts(){
+const r=await sb.from("products").select("*").order("created_at",{ascending:false});
+if(r.error){products=[];$("productRows").innerHTML='<tr><td colspan="6">Products table is not ready: '+esc(r.error.message)+'</td></tr>'}
+else{products=r.data||[];renderProducts();renderStock()}
+updateDashboard();renderLowStock();
+}
+function stockStatus(p){const n=Number(p.stock_quantity??p.stock??0),low=Number(p.low_stock_limit??5);return n<=0?"out":n<=low?"low":"available"}
+function statusPill(s){return '<span class="pill '+s+'">'+(s==="available"?"Available":s==="low"?"Low Stock":"Out of Stock")+'</span>'}
+function renderProducts(){
+const q=($("productSearch")?.value||"").toLowerCase(),cat=$("productCategory")?.value||"",st=$("productStatus")?.value||"";
+const arr=products.filter(p=>(!q||[p.name,p.brand,p.sku,p.model].join(" ").toLowerCase().includes(q))&&(!cat||p.category===cat)&&(!st||stockStatus(p)===st));
+$("productRows").innerHTML=arr.length?arr.map(p=>'<tr><td><b>'+esc(p.name)+'</b><br><span class="small">'+esc(p.brand||"")+' '+esc(p.model||"")+'</span></td><td>'+esc(p.category)+'</td><td>₹'+Number(p.price??p.selling_price??0).toLocaleString("en-IN")+'</td><td>'+Number(p.stock_quantity??p.stock??0)+'</td><td>'+statusPill(stockStatus(p))+'</td><td><button class="btn secondary" onclick="editProduct(\''+esc(p.id)+'\')">Edit</button> <button class="btn danger" onclick="deleteProduct(\''+esc(p.id)+'\')">Delete</button></td></tr>').join(""):'<tr><td colspan="6" class="empty">No products found.</td></tr>';
+}
+function renderStock(){
+$("stockRows").innerHTML=products.length?products.map(p=>'<tr><td><b>'+esc(p.name)+'</b></td><td>'+esc(p.sku||"-")+'</td><td>'+Number(p.stock_quantity??p.stock??0)+'</td><td>'+Number(p.low_stock_limit??5)+'</td><td>'+statusPill(stockStatus(p))+'</td><td><button class="btn secondary" onclick="quickStock(\''+esc(p.id)+'\')">Update Stock</button></td></tr>').join(""):'<tr><td colspan="6" class="empty">No products yet.</td></tr>';
+}
+function renderLowStock(){
+const a=products.filter(p=>stockStatus(p)!=="available");
+$("lowStock").innerHTML=a.length?a.map(p=>'<div style="padding:12px;border-bottom:1px solid #edf0f4"><b>'+esc(p.name)+'</b> — '+Number(p.stock_quantity??p.stock??0)+' units '+statusPill(stockStatus(p))+'</div>').join(""):'<div class="empty">No low-stock products 🎉</div>';
+}
+function openProduct(id=null){
+$("productModal").style.display="grid";$("productModal").classList.remove("hidden");$("productMsg").style.display="none";
+$("modalTitle").textContent=id?"✏️ Edit Product":"➕ Add Product";$("pId").value=id||"";
+if(id){const p=products.find(x=>String(x.id)===String(id));if(p){$("pName").value=p.name||"";$("pCategory").value=p.category||"New Mobile";$("pBrand").value=p.brand||"";$("pModel").value=p.model||"";$("pSku").value=p.sku||"";$("pPrice").value=p.price??p.selling_price??"";$("pPurchase").value=p.purchase_price??"";$("pStock").value=p.stock_quantity??p.stock??0;$("pLow").value=p.low_stock_limit??5;$("pImage").value=p.image_url||"";$("pDescription").value=p.description||""}}
+else ["pName","pBrand","pModel","pSku","pPrice","pPurchase","pStock","pImage","pDescription"].forEach(x=>$(x).value="");
+}
+function closeProduct(){$("productModal").style.display="none";$("productModal").classList.add("hidden")}
+function editProduct(id){openProduct(id)}
+async function saveProduct(){
+const data={name:$("pName").value.trim(),category:$("pCategory").value,brand:$("pBrand").value.trim(),model:$("pModel").value.trim(),sku:$("pSku").value.trim(),price:Number($("pPrice").value||0),purchase_price:Number($("pPurchase").value||0),stock_quantity:Number($("pStock").value||0),low_stock_limit:Number($("pLow").value||5),image_url:$("pImage").value.trim(),description:$("pDescription").value.trim()};
+if(!data.name||!data.category)return msg("productMsg","Product name and category are required.");
+const id=$("pId").value;let r=id?await sb.from("products").update(data).eq("id",id):await sb.from("products").insert(data);
+if(r.error)return msg("productMsg",r.error.message);
+msg("productMsg","Product saved successfully.",true);await loadProducts();setTimeout(closeProduct,600);
+}
+async function deleteProduct(id){if(!confirm("Delete this product?"))return;const r=await sb.from("products").delete().eq("id",id);if(r.error)alert(r.error.message);else await loadProducts()}
+async function quickStock(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;const current=Number(p.stock_quantity??p.stock??0),v=prompt("Enter new stock quantity:",current);if(v===null)return;const n=Number(v);if(!Number.isFinite(n)||n<0)return alert("Enter a valid quantity.");const r=await sb.from("products").update({stock_quantity:n}).eq("id",id);if(r.error)alert(r.error.message);else await loadProducts()}
+async function loadCustomers(){
+const r=await sb.from("customers").select("*").order("created_at",{ascending:false});
+if(r.error){$("customerRows").innerHTML='<tr><td colspan="4">Customers table error: '+esc(r.error.message)+'</td></tr>';customers=[];return}
+customers=r.data||[];$("customerRows").innerHTML=customers.length?customers.map(x=>'<tr><td>'+esc(x.email)+'</td><td>'+esc(x.name||x.full_name||"-")+'</td><td>'+esc(x.phone||"-")+'</td><td>'+esc(x.created_at?new Date(x.created_at).toLocaleDateString("en-IN"):"-")+'</td></tr>').join(""):'<tr><td colspan="4" class="empty">No customers found.</td></tr>';updateDashboard()
+}
+async function loadComplaints(){
+const r=await sb.from("complaints").select("*").order("created_at",{ascending:false});
+if(r.error){$("complaintRows").innerHTML='<tr><td colspan="7">Complaints error: '+esc(r.error.message)+'</td></tr>';complaints=[];return}
+complaints=r.data||[];$("complaintRows").innerHTML=complaints.length?complaints.map(x=>'<tr><td>'+esc(x.id)+'</td><td>'+esc(x.user_id||"Guest")+'</td><td>'+esc(x.brand||"")+" "+esc(x.model||"")+'</td><td>'+esc(x.issue||"-")+'</td><td><span class="pill">'+esc(x.status||"Pending")+'</span></td><td>'+esc(x.vendor_id||"-")+'</td><td><button class="btn secondary" onclick="assignVendor(\''+esc(x.id)+'\')">Assign</button></td></tr>').join(""):'<tr><td colspan="7" class="empty">No complaints found.</td></tr>';updateDashboard()
+}
+async function assignVendor(id){const v=prompt("Enter Vendor ID to assign:");if(!v)return;const r=await sb.from("complaints").update({vendor_id:v,status:"Assigned"}).eq("id",id);if(r.error)alert(r.error.message);else loadComplaints()}
+async function loadVendors(){
+const r=await sb.from("vendors").select("*").order("created_at",{ascending:false});
+if(r.error){$("vendorRows").innerHTML='<tr><td colspan="4">Vendors table error: '+esc(r.error.message)+'</td></tr>';vendors=[];return}
+vendors=r.data||[];$("vendorRows").innerHTML=vendors.length?vendors.map(x=>'<tr><td>'+esc(x.id||x.vendor_id||"-")+'</td><td>'+esc(x.email||"-")+'</td><td>'+esc(x.status||"Active")+'</td><td>'+esc(x.created_at?new Date(x.created_at).toLocaleDateString("en-IN"):"-")+'</td></tr>').join(""):'<tr><td colspan="4" class="empty">No vendors found.</td></tr>';updateDashboard()
+}
+function updateDashboard(){
+$("sProducts").textContent=products.length;$("sStock").textContent=products.reduce((a,p)=>a+Number(p.stock_quantity??p.stock??0),0);$("sCustomers").textContent=customers.length;$("sRepairs").textContent=complaints.filter(x=>!["Completed","Cancelled","No Repair"].includes(x.status)).length;renderLowStock()
+}
+sb.auth.getSession().then(r=>{if(r.data.session){$("loginScreen").classList.add("hidden");$("app").classList.remove("hidden");loadAll()}})
+</script>
+</body>
+</html>
