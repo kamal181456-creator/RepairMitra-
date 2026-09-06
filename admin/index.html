@@ -3,9 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; url=../admin.html">
-<title>RepairMitra Admin</title>
-<script>location.replace('../admin.html');</script>
+<title>RepairMitra Admin Login</title>
+<meta name="theme-color" content="#0b1220">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at top,#dbeafe,#f4f7fb 48%);color:#142033;display:grid;place-items:center;padding:20px}.card{width:min(430px,100%);background:#fff;border:1px solid #e6eaf0;border-radius:26px;padding:28px;box-shadow:0 18px 50px rgba(15,23,42,.12)}.brand{width:64px;height:64px;margin:auto;border-radius:20px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;font-size:32px;color:#fff}.logo{text-align:center;font-size:25px;font-weight:800;margin:14px 0 4px}.sub{text-align:center;color:#667085;font-size:13px;margin-bottom:22px}.field{margin:13px 0}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:6px}.field input{width:100%;padding:13px;border:1px solid #ccd5e1;border-radius:13px;font-size:15px;outline:0}.field input:focus{border-color:#2563eb;box-shadow:0 0 0 3px #2563eb18}.btn{width:100%;border:0;border-radius:12px;padding:13px;background:#2563eb;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-top:7px}.btn:disabled{opacity:.6}.link{display:block;text-align:center;margin-top:16px;color:#2563eb;text-decoration:none;font-weight:700;font-size:14px}.msg{display:none;margin-top:12px;padding:11px;border-radius:12px;font-size:13px;line-height:1.45}.ok{display:block;background:#eaf8ef;color:#166534}.err{display:block;background:#fff0f0;color:#991b1b}.note{margin-top:18px;padding:12px;background:#fff7df;border:1px solid #f3df9c;border-radius:12px;color:#735400;font-size:12px;line-height:1.5}.back{display:block;text-align:center;margin-top:18px;color:#667085;text-decoration:none;font-size:13px}
+</style>
 </head>
-<body>Opening RepairMitra Admin…</body>
+<body>
+<div class="card">
+<div class="brand">🛠️</div>
+<div class="logo">RepairMitra Admin</div>
+<div class="sub">Private Management Console</div>
+<div class="field"><label>ADMIN EMAIL</label><input id="email" type="email" autocomplete="username" placeholder="Admin email"></div>
+<div class="field"><label>PASSWORD</label><input id="password" type="password" autocomplete="current-password" placeholder="Admin password"></div>
+<button id="loginBtn" class="btn" onclick="loginAdmin()">Sign In Securely</button>
+<div id="msg" class="msg"></div>
+<a class="link" href="../forgot-password.html?admin=1">🔐 Forgot Password?</a>
+<div class="note"><b>Admin access only.</b><br>This login checks that your Supabase account has the approved <b>admin</b> role. No service-role key is used here.</div>
+<a class="back" href="../">← Back to RepairMitra</a>
+</div>
+<script>
+const sb=window.supabase.createClient("https://rqnmshqrwntxilwnhqwa.supabase.co","sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v");
+const $=id=>document.getElementById(id);
+function msg(text,ok=false){const e=$("msg");e.textContent=text;e.className="msg "+(ok?"ok":"err");e.style.display="block"}
+async function verifyAdmin(){const {data:{user}}=await sb.auth.getUser();if(!user)return false;const r=await sb.from("profiles").select("role,is_active").eq("id",user.id).maybeSingle();return !r.error&&r.data&&r.data.role==="admin"&&r.data.is_active!==false}
+async function loginAdmin(){const email=$("email").value.trim(),password=$("password").value;if(!email||!password)return msg("Enter admin email and password.");const b=$("loginBtn");b.disabled=true;b.textContent="Signing in...";try{const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;if(!await verifyAdmin()){await sb.auth.signOut();throw new Error("This account is not an approved admin account.")}location.href="../admin.html"}catch(e){msg(e.message||String(e))}finally{b.disabled=false;b.textContent="Sign In Securely"}}
+(async()=>{try{const {data:{session}}=await sb.auth.getSession();if(session&&await verifyAdmin())location.href="../admin.html"}catch(e){}})();
+</script>
+</body>
 </html>
