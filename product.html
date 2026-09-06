@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RepairMitra - Products</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}.wrap{max-width:1000px;margin:auto;padding:12px}.top{background:#fff;border-radius:16px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 18px #0001;position:sticky;top:8px;z-index:5}.logo{font-size:20px;font-weight:800;color:#1769e0}.btn{display:inline-block;border:0;border-radius:10px;padding:10px 13px;text-decoration:none;font-weight:700;font-size:14px;background:#1769e0;color:#fff}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:18px}.card{background:#fff;border-radius:18px;padding:14px;box-shadow:0 5px 20px #0000000d}.pic{width:100%;height:170px;object-fit:cover;border-radius:13px;background:#eef2f7}.price{font-size:20px;font-weight:800;margin:8px 0}.muted{color:#667085;font-size:14px;line-height:1.5}.empty{text-align:center;background:#fff;border-radius:16px;padding:30px;margin-top:18px}@media(max-width:600px){.grid{grid-template-columns:1fr}.pic{height:210px}}
+</style></head>
+<body><div class="wrap">
+<div class="top"><div class="logo">RepairMitra 🛠️</div><a class="btn" href="index.html">Home</a></div>
+<h2>Products</h2><div id="products" class="grid"></div><div id="empty" class="empty" style="display:none">No products available right now.</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://rqnmshqrwntxilwnhqwa.supabase.co';
+const SUPABASE_KEY='YOUR_EXISTING_PUBLISHABLE_KEY';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+async function load(){
+ const box=document.getElementById('products');
+ const {data,error}=await sb.from('products').select('*').order('created_at',{ascending:false});
+ if(error){box.innerHTML='<div class="empty">Products are temporarily unavailable.</div>';return;}
+ if(!data||!data.length){document.getElementById('empty').style.display='block';return;}
+ box.innerHTML=data.map(p=>{const name=p.name||p.product_name||'Product';const price=p.price??p.selling_price??0;const img=p.image_url||p.image||'';const desc=p.description||'';return `<div class="card">${img?`<img class="pic" src="${esc(img)}" alt="${esc(name)}">`:'<div class="pic"></div>'}<h3>${esc(name)}</h3><div class="muted">${esc(p.brand||'')}</div><div class="price">₹${Number(price).toLocaleString('en-IN')}</div><div class="muted">${esc(desc)}</div></div>`}).join('');}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+load();
+</script></body></html>
