@@ -1,40 +1,1619 @@
-<!doctype html>
-<html lang="hi">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RepairMitra Vendor Panel</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepairMitra - Vendor Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}.wrap{max-width:760px;margin:auto;padding:15px}
-.header{background:linear-gradient(135deg,#1769e0,#0d47a1);color:#fff;padding:22px;border-radius:20px;margin-bottom:15px}.logo{font-size:27px;font-weight:bold}.tagline{margin-top:6px;font-size:14px}
-.card{background:#fff;padding:20px;margin:14px 0;border-radius:18px;box-shadow:0 5px 20px #0000000d}input,select,textarea,button{width:100%;padding:13px;margin:7px 0;border-radius:10px;font-size:16px;font-family:Arial}input,select,textarea{border:1px solid #ccd4df;background:#fff}textarea{min-height:80px;resize:vertical}button{border:0;background:#1769e0;color:#fff;font-weight:bold;cursor:pointer}button:disabled{opacity:.6}.gray{background:#e9eef7;color:#172033}.hidden{display:none!important}
-.item{border:1px solid #dfe5ed;padding:17px;margin:13px 0;border-radius:16px;background:#fff}.info{background:#f5f8fc;border-radius:12px;padding:12px;margin:10px 0;line-height:1.6}.row{margin:9px 0;line-height:1.5}.small{font-size:13px;color:#667085}
-.msg{padding:12px;margin:10px 0;border-radius:10px;display:none;line-height:1.5}.err{background:#fde8e8;color:#a12626}.ok{background:#e5f7ea;color:#176b36}
-.status{display:inline-block;padding:6px 11px;border-radius:20px;font-size:13px;font-weight:bold}.status-assigned{background:#e8f1ff;color:#1769e0}.status-accepted{background:#e7f7ee;color:#16794c}.status-repairing{background:#f0eaff;color:#6842c2}.status-completed{background:#dff7e7;color:#087443}.status-norepair{background:#fde8e8;color:#a12626}.status-pending{background:#fff4d6;color:#9a6700}
-.quotation{background:#fff8e6;border:2px solid #f0d58a;border-radius:15px;padding:15px;margin-top:15px}.quotation-title{font-size:18px;font-weight:bold;color:#765300}.empty{text-align:center;padding:25px;color:#667085}.footer{text-align:center;padding:25px 5px;color:#667085;font-size:13px}
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f6f8;
+  color:#1f2937;
+}
+
+header{
+  background:#111827;
+  color:white;
+  padding:16px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+header h2{
+  margin:0;
+}
+
+button{
+  border:0;
+  padding:11px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.logout{
+  background:#ef4444;
+  color:white;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:20px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+h3{
+  margin-top:0;
+}
+
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  margin:7px 0 14px;
+  border:1px solid #d1d5db;
+  border-radius:8px;
+  font-size:15px;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.primary{
+  background:#2563eb;
+  color:white;
+}
+
+.success{
+  background:#16a34a;
+  color:white;
+}
+
+.warning{
+  background:#f59e0b;
+  color:white;
+}
+
+.danger{
+  background:#dc2626;
+  color:white;
+}
+
+.muted{
+  color:#6b7280;
+}
+
+.status{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  background:#e5e7eb;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.complaint{
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:18px;
+  margin-top:15px;
+}
+
+.quote-box{
+  background:#eff6ff;
+  border-radius:10px;
+  padding:15px;
+  margin-top:15px;
+}
+
+.location-box{
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+  padding:15px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.hidden{
+  display:none;
+}
+
+#loginPage{
+  max-width:450px;
+  margin:70px auto;
+  padding:20px;
+}
+
+.message{
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:15px;
+  display:none;
+}
+
+.error{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.successMsg{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.map-button{
+  display:inline-block;
+  background:#16a34a;
+  color:white;
+  padding:10px 14px;
+  border-radius:8px;
+  text-decoration:none;
+  margin-top:8px;
+}
+
+@media(max-width:700px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  header{
+    flex-direction:column;
+    gap:10px;
+  }
+}
 </style>
 </head>
-<body><div class="wrap">
-<div class="header"><div class="logo">RepairMitra 🛠️</div><div class="tagline">👨‍🔧 Vendor / Technician Panel</div></div>
-<div class="card" id="login"><h2>👨‍🔧 Vendor Login</h2><p class="small">अपने Vendor account से login करें।</p>
-<input id="email" type="email" placeholder="Vendor Email" autocomplete="email"><input id="pass" type="password" placeholder="Password" autocomplete="current-password">
-<button id="loginBtn" onclick="login()">Login करें</button><div style="text-align:center;margin-top:10px;"><a href="forgot-password.html" style="color:#1769e0;text-decoration:none;font-weight:bold;">🔐 Password भूल गए? / Forgot Password</a></div><div id="msg" class="msg"></div></div>
-<div id="panel" class="hidden">
-<div class="card"><h2>👋 Welcome Vendor</h2><p id="who" class="small"></p><div class="info">📌 यहाँ केवल आपकी assigned complaints दिखाई देंगी।<br>💰 यहीं से status और repair quotation update करें।</div></div>
-<div class="card"><h2>📋 मेरी Assigned Complaints</h2><div id="list"><div class="empty">⏳ Loading...</div></div></div>
-<div class="card"><button class="gray" onclick="logout()">🚪 Logout</button></div>
-</div><div class="footer">RepairMitra 🛠️<br>Trusted Mobile Repair Service</div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<body>
+
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<div id="loginPage">
+
+  <div class="card">
+
+    <h2>Vendor Login</h2>
+
+    <div id="loginMessage" class="message"></div>
+
+    <input
+      type="email"
+      id="loginEmail"
+      placeholder="Email"
+    >
+
+    <input
+      type="password"
+      id="loginPassword"
+      placeholder="Password"
+    >
+
+    <button class="primary" style="width:100%" onclick="loginVendor()">
+      Login
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<div id="dashboard" class="hidden">
+
+<header>
+
+  <h2>🔧 RepairMitra Vendor</h2>
+
+  <button class="logout" onclick="logoutVendor()">
+    Logout
+  </button>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     VENDOR PROFILE
+===================================================== -->
+
+<div class="card">
+
+<h3>🏪 My Shop & Location</h3>
+
+<p class="muted">
+Add your business information and shop location.
+Customers will see this information when comparing vendors.
+</p>
+
+<div id="profileMessage" class="message"></div>
+
+<div class="grid">
+
+<div>
+
+<label>Shop Name</label>
+<input id="shopName" placeholder="Your Shop Name">
+
+</div>
+
+<div>
+
+<label>Owner Name</label>
+<input id="ownerName" placeholder="Owner Name">
+
+</div>
+
+<div>
+
+<label>Mobile Number</label>
+<input id="shopPhone" placeholder="Mobile Number">
+
+</div>
+
+<div>
+
+<label>City</label>
+<input id="city" placeholder="City">
+
+</div>
+
+<div>
+
+<label>Area</label>
+<input id="area" placeholder="Area / Locality">
+
+</div>
+
+<div>
+
+<label>PIN Code</label>
+<input id="pincode" placeholder="PIN Code">
+
+</div>
+
+</div>
+
+
+<label>Complete Shop Address</label>
+
+<textarea
+id="shopAddress"
+placeholder="Complete shop address"
+></textarea>
+
+
+<div class="grid">
+
+<div>
+
+<label>Latitude</label>
+
+<input
+id="latitude"
+placeholder="Latitude"
+>
+
+</div>
+
+<div>
+
+<label>Longitude</label>
+
+<input
+id="longitude"
+placeholder="Longitude"
+>
+
+</div>
+
+</div>
+
+
+<label>Google Maps URL</label>
+
+<input
+id="mapUrl"
+placeholder="Paste Google Maps shop link"
+>
+
+
+<button
+class="success"
+onclick="getCurrentLocation()"
+>
+📍 Use My Current Location
+</button>
+
+
+<button
+class="primary"
+onclick="saveShopProfile()"
+>
+💾 Save Shop Profile
+</button>
+
+
+<div id="currentLocationBox" class="location-box hidden">
+
+<strong>📍 Current Location</strong>
+
+<p id="locationText"></p>
+
+<a
+id="directionLink"
+class="map-button"
+target="_blank"
+>
+🗺️ Open Google Maps
+</a>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     SERVICES
+===================================================== -->
+
+<div class="card">
+
+<h3>🔧 Services</h3>
+
+<p class="muted">
+Enter the repair services provided by your shop.
+</p>
+
+<input
+id="services"
+placeholder="Example: Screen Repair, Battery, Charging Port"
+>
+
+</div>
+
+
+<!-- =====================================================
+     AVAILABLE COMPLAINTS
+===================================================== -->
+
+<div class="card">
+
+<h3>📋 Available Repair Complaints</h3>
+
+<p class="muted">
+New complaints from customers will appear here.
+You can submit your own quote.
+</p>
+
+<button
+class="primary"
+onclick="loadComplaints()"
+>
+🔄 Refresh Complaints
+</button>
+
+<div id="complaintsList"></div>
+
+</div>
+
+
+<!-- =====================================================
+     MY QUOTES
+===================================================== -->
+
+<div class="card">
+
+<h3>💰 My Submitted Quotes</h3>
+
+<div id="myQuotesList">
+
+<p class="muted">
+Your submitted quotes will appear here.
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
 <script>
-const sb=window.supabase.createClient("https://rqnmshqrwntxilwnhqwa.supabase.co","sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v"),$=id=>document.getElementById(id);
-function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
-function showMsg(t,ok=false){$("msg").textContent=t;$("msg").className="msg "+(ok?"ok":"err");$("msg").style.display="block"}
-function statusClass(s){if(s==="Accepted")return"status-accepted";if(s==="Repairing")return"status-repairing";if(s==="Completed")return"status-completed";if(s==="No Repair")return"status-norepair";if(s==="Pending")return"status-pending";return"status-assigned"}
-async function isVendor(uid){const r=await sb.from("profiles").select("id,role").eq("id",uid).eq("role","vendor").maybeSingle();return !r.error&&!!r.data}
-async function login(){
- const email=$("email").value.trim(),password=$("pass").value;if(!email||!password)return showMsg("Email और Password भरें।");
- const b=$("loginBtn");b.disabled=true;b.textContent="Login हो रहा है...";
- const r=await sb.auth.signInWithPassword({email,password});b.disabled=false;b.textContent="Login करें";
+
+/* =====================================================
+   SUPABASE CONFIG
+===================================================== */
+
+/*
+ IMPORTANT:
+ Replace these two values with the SAME values
+ already used by your existing RepairMitra website.
+
+ NEVER use the service_role / secret key here.
+*/
+
+const SUPABASE_URL =
+"https://rqnmshqrwntxilwnhqwa.supabase.co";
+
+const SUPABASE_KEY =
+"YOUR_EXISTING_SUPABASE_PUBLISHABLE_KEY";
+
+const sb =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+let currentUser = null;
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+async function loginVendor(){
+
+  const email =
+    document.getElementById("loginEmail").value.trim();
+
+  const password =
+    document.getElementById("loginPassword").value;
+
+  const msg =
+    document.getElementById("loginMessage");
+
+  msg.style.display="none";
+
+  if(!email || !password){
+
+    msg.className="message error";
+    msg.textContent="Please enter email and password.";
+    msg.style.display="block";
+
+    return;
+  }
+
+
+  const {data,error} =
+    await sb.auth.signInWithPassword({
+      email,
+      password
+    });
+
+
+  if(error){
+
+    msg.className="message error";
+    msg.textContent=error.message;
+    msg.style.display="block";
+
+    return;
+  }
+
+
+  currentUser=data.user;
+
+  await checkVendor();
+
+}
+
+
+/* =====================================================
+   CHECK VENDOR
+===================================================== */
+
+async function checkVendor(){
+
+  if(!currentUser) return;
+
+
+  const {data:profile,error} =
+    await sb
+      .from("profiles")
+      .select("*")
+      .eq("id",currentUser.id)
+      .maybeSingle();
+
+
+  if(error){
+
+    alert(error.message);
+    return;
+
+  }
+
+
+  if(!profile){
+
+    alert("Vendor profile not found.");
+    return;
+
+  }
+
+
+  if(profile.role !== "vendor"){
+
+    alert("This account is not a vendor account.");
+    await sb.auth.signOut();
+
+    return;
+
+  }
+
+
+  if(profile.is_active === false){
+
+    alert("Your vendor account is inactive.");
+    await sb.auth.signOut();
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("loginPage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("dashboard")
+    .classList.remove("hidden");
+
+
+  await loadShopProfile();
+
+  await loadComplaints();
+
+  await loadMyQuotes();
+
+}
+
+
+/* =====================================================
+   SESSION CHECK
+===================================================== */
+
+async function checkSession(){
+
+  const {data} =
+    await sb.auth.getSession();
+
+  if(data.session){
+
+    currentUser=data.session.user;
+
+    await checkVendor();
+
+  }
+
+}
+
+checkSession();
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logoutVendor(){
+
+  await sb.auth.signOut();
+
+  location.reload();
+
+}
+
+
+/* =====================================================
+   LOAD SHOP PROFILE
+===================================================== */
+
+async function loadShopProfile(){
+
+  if(!currentUser) return;
+
+
+  const {data,error} =
+    await sb
+      .from("vendor_shops")
+      .select("*")
+      .eq("vendor_id",currentUser.id)
+      .maybeSingle();
+
+
+  if(error){
+
+    console.log(error);
+    return;
+
+  }
+
+
+  if(!data) return;
+
+
+  document.getElementById("shopName").value =
+    data.shop_name || "";
+
+  document.getElementById("ownerName").value =
+    data.owner_name || "";
+
+  document.getElementById("shopPhone").value =
+    data.phone || "";
+
+  document.getElementById("city").value =
+    data.city || "";
+
+  document.getElementById("area").value =
+    data.area || "";
+
+  document.getElementById("pincode").value =
+    data.pincode || "";
+
+  document.getElementById("shopAddress").value =
+    data.address || "";
+
+  document.getElementById("latitude").value =
+    data.latitude || "";
+
+  document.getElementById("longitude").value =
+    data.longitude || "";
+
+  document.getElementById("mapUrl").value =
+    data.map_url || "";
+
+  document.getElementById("services").value =
+    data.services ? data.services.join(", ") : "";
+
+
+  if(data.latitude && data.longitude){
+
+    showLocation(
+      data.latitude,
+      data.longitude
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   SAVE SHOP PROFILE
+===================================================== */
+
+async function saveShopProfile(){
+
+  if(!currentUser){
+
+    alert("Please login first.");
+    return;
+
+  }
+
+
+  const shopName =
+    document.getElementById("shopName").value.trim();
+
+  const ownerName =
+    document.getElementById("ownerName").value.trim();
+
+  const phone =
+    document.getElementById("shopPhone").value.trim();
+
+  const city =
+    document.getElementById("city").value.trim();
+
+  const area =
+    document.getElementById("area").value.trim();
+
+  const pincode =
+    document.getElementById("pincode").value.trim();
+
+  const address =
+    document.getElementById("shopAddress").value.trim();
+
+  const latitude =
+    parseFloat(
+      document.getElementById("latitude").value
+    );
+
+  const longitude =
+    parseFloat(
+      document.getElementById("longitude").value
+    );
+
+  const mapUrl =
+    document.getElementById("mapUrl").value.trim();
+
+  const servicesText =
+    document.getElementById("services").value.trim();
+
+
+  if(!shopName){
+
+    showProfileMessage(
+      "Please enter shop name.",
+      false
+    );
+
+    return;
+
+  }
+
+
+  const services =
+    servicesText
+      ? servicesText
+          .split(",")
+          .map(x=>x.trim())
+          .filter(Boolean)
+      : [];
+
+
+  const payload={
+
+    vendor_id:currentUser.id,
+
+    shop_name:shopName,
+
+    owner_name:ownerName,
+
+    phone:phone,
+
+    address:address,
+
+    city:city,
+
+    area:area,
+
+    pincode:pincode,
+
+    latitude:
+      Number.isFinite(latitude)
+      ? latitude
+      : null,
+
+    longitude:
+      Number.isFinite(longitude)
+      ? longitude
+      : null,
+
+    map_url:mapUrl,
+
+    services:services,
+
+    updated_at:new Date().toISOString()
+
+  };
+
+
+  const {error} =
+    await sb
+      .from("vendor_shops")
+      .upsert(
+        payload,
+        {
+          onConflict:"vendor_id"
+        }
+      );
+
+
+  if(error){
+
+    showProfileMessage(
+      error.message,
+      false
+    );
+
+    return;
+
+  }
+
+
+  showProfileMessage(
+    "Shop profile saved successfully.",
+    true
+  );
+
+
+  if(
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+  ){
+
+    showLocation(
+      latitude,
+      longitude
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   CURRENT LOCATION
+===================================================== */
+
+function getCurrentLocation(){
+
+  if(!navigator.geolocation){
+
+    alert(
+      "Location is not supported by this browser."
+    );
+
+    return;
+
+  }
+
+
+  navigator.geolocation.getCurrentPosition(
+
+    function(position){
+
+      const lat =
+        position.coords.latitude;
+
+      const lon =
+        position.coords.longitude;
+
+
+      document.getElementById("latitude").value =
+        lat;
+
+      document.getElementById("longitude").value =
+        lon;
+
+
+      const mapsUrl =
+        "https://www.google.com/maps?q="
+        + lat
+        + ","
+        + lon;
+
+
+      document.getElementById("mapUrl").value =
+        mapsUrl;
+
+
+      showLocation(lat,lon);
+
+    },
+
+    function(error){
+
+      alert(
+        "Unable to get location. Please allow location permission."
+      );
+
+    },
+
+    {
+      enableHighAccuracy:true,
+      timeout:10000
+    }
+
+  );
+
+}
+
+
+/* =====================================================
+   SHOW LOCATION
+===================================================== */
+
+function showLocation(lat,lon){
+
+  const box =
+    document.getElementById(
+      "currentLocationBox"
+    );
+
+  const text =
+    document.getElementById(
+      "locationText"
+    );
+
+  const link =
+    document.getElementById(
+      "directionLink"
+    );
+
+
+  text.textContent =
+    "Latitude: "
+    + lat
+    + " | Longitude: "
+    + lon;
+
+
+  link.href =
+    "https://www.google.com/maps/dir/?api=1&destination="
+    + lat
+    + ","
+    + lon;
+
+
+  box.classList.remove("hidden");
+
+}
+
+
+/* =====================================================
+   PROFILE MESSAGE
+===================================================== */
+
+function showProfileMessage(text,success){
+
+  const msg =
+    document.getElementById(
+      "profileMessage"
+    );
+
+  msg.className =
+    success
+    ? "message successMsg"
+    : "message error";
+
+  msg.textContent=text;
+
+  msg.style.display="block";
+
+}
+
+
+/* =====================================================
+   LOAD ALL AVAILABLE COMPLAINTS
+===================================================== */
+
+async function loadComplaints(){
+
+  const list =
+    document.getElementById(
+      "complaintsList"
+    );
+
+
+  list.innerHTML =
+    "<p class='muted'>Loading complaints...</p>";
+
+
+  /*
+    We intentionally do NOT filter by vendor_id.
+
+    This allows approved/active vendors to see
+    marketplace complaints.
+  */
+
+
+  const {data,error} =
+    await sb
+      .from("complaints")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    list.innerHTML =
+      "<p class='muted'>"
+      + error.message
+      + "</p>";
+
+    return;
+
+  }
+
+
+  if(!data || data.length===0){
+
+    list.innerHTML =
+      "<p class='muted'>No complaints available.</p>";
+
+    return;
+
+  }
+
+
+  list.innerHTML="";
+
+
+  for(const complaint of data){
+
+    const quote =
+      await getMyQuote(
+        complaint.id
+      );
+
+
+    const div =
+      document.createElement("div");
+
+    div.className="complaint";
+
+
+    const mobile =
+      complaint.mobile_model
+      || complaint.phone_model
+      || complaint.device
+      || "Not provided";
+
+
+    const problem =
+      complaint.problem
+      || complaint.issue
+      || complaint.description
+      || "Not provided";
+
+
+    const address =
+      complaint.address
+      || complaint.location
+      || "Customer location not provided";
+
+
+    div.innerHTML = `
+
+      <h3>
+        📱 ${escapeHtml(mobile)}
+      </h3>
+
+      <span class="status">
+        ${escapeHtml(
+          complaint.marketplace_status
+          || complaint.status
+          || "New"
+        )}
+      </span>
+
+      <p>
+        <strong>Problem:</strong>
+        ${escapeHtml(problem)}
+      </p>
+
+      <p>
+        <strong>Customer Location:</strong>
+        ${escapeHtml(address)}
+      </p>
+
+      <p class="muted">
+        Complaint ID:
+        ${escapeHtml(String(complaint.id))}
+      </p>
+
+      ${
+        quote
+        ? renderExistingQuote(quote)
+        : renderQuoteForm(complaint.id)
+      }
+
+    `;
+
+
+    list.appendChild(div);
+
+  }
+
+}
+
+
+/* =====================================================
+   QUOTE FORM
+===================================================== */
+
+function renderQuoteForm(complaintId){
+
+  return `
+
+    <div class="quote-box">
+
+      <h3>💰 Submit Your Quote</h3>
+
+      <label>Repair Price</label>
+
+      <input
+        type="number"
+        id="quoteAmount_${complaintId}"
+        placeholder="Enter your price"
+        min="0"
+      >
+
+      <label>Estimated Repair Time</label>
+
+      <input
+        type="text"
+        id="quoteTime_${complaintId}"
+        placeholder="Example: 2 hours"
+      >
+
+      <label>Parts Details</label>
+
+      <textarea
+        id="parts_${complaintId}"
+        placeholder="Example: Original display"
+      ></textarea>
+
+      <label>Service Details</label>
+
+      <textarea
+        id="service_${complaintId}"
+        placeholder="Explain repair/service"
+      ></textarea>
+
+      <label>Note</label>
+
+      <textarea
+        id="note_${complaintId}"
+        placeholder="Additional information"
+      ></textarea>
+
+      <button
+        class="success"
+        onclick="submitQuote('${complaintId}')"
+      >
+        💰 Submit Quote
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   SUBMIT QUOTE
+===================================================== */
+
+async function submitQuote(complaintId){
+
+  if(!currentUser){
+
+    alert("Please login.");
+    return;
+
+  }
+
+
+  const amount =
+    parseFloat(
+      document.getElementById(
+        "quoteAmount_"+complaintId
+      ).value
+    );
+
+
+  const estimatedTime =
+    document.getElementById(
+      "quoteTime_"+complaintId
+    ).value.trim();
+
+
+  const partsDetails =
+    document.getElementById(
+      "parts_"+complaintId
+    ).value.trim();
+
+
+  const serviceDetails =
+    document.getElementById(
+      "service_"+complaintId
+    ).value.trim();
+
+
+  const note =
+    document.getElementById(
+      "note_"+complaintId
+    ).value.trim();
+
+
+  if(!Number.isFinite(amount)){
+
+    alert("Please enter quote amount.");
+    return;
+
+  }
+
+
+  const {error} =
+    await sb
+      .from("repair_quotes")
+      .upsert(
+
+        {
+
+          complaint_id:String(complaintId),
+
+          vendor_id:currentUser.id,
+
+          quote_amount:amount,
+
+          estimated_time:estimatedTime,
+
+          parts_details:partsDetails,
+
+          service_details:serviceDetails,
+
+          vendor_note:note,
+
+          status:"submitted",
+
+          updated_at:new Date().toISOString()
+
+        },
+
+        {
+          onConflict:
+            "complaint_id,vendor_id"
+        }
+
+      );
+
+
+  if(error){
+
+    alert(error.message);
+    return;
+
+  }
+
+
+  alert(
+    "Your quote has been submitted successfully."
+  );
+
+
+  await loadComplaints();
+
+  await loadMyQuotes();
+
+}
+
+
+/* =====================================================
+   GET VENDOR QUOTE
+===================================================== */
+
+async function getMyQuote(complaintId){
+
+  if(!currentUser) return null;
+
+
+  const {data,error} =
+    await sb
+      .from("repair_quotes")
+      .select("*")
+      .eq(
+        "complaint_id",
+        String(complaintId)
+      )
+      .eq(
+        "vendor_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+
+  if(error){
+
+    console.log(error);
+    return null;
+
+  }
+
+
+  return data;
+
+}
+
+
+/* =====================================================
+   EXISTING QUOTE
+===================================================== */
+
+function renderExistingQuote(quote){
+
+  return `
+
+    <div class="quote-box">
+
+      <h3>✅ Your Quote</h3>
+
+      <p>
+        <strong>Amount:</strong>
+        ₹${escapeHtml(
+          String(quote.quote_amount)
+        )}
+      </p>
+
+      <p>
+        <strong>Estimated Time:</strong>
+        ${escapeHtml(
+          quote.estimated_time || "-"
+        )}
+      </p>
+
+      <p>
+        <strong>Status:</strong>
+        <span class="status">
+          ${escapeHtml(
+            quote.status || "submitted"
+          )}
+        </span>
+      </p>
+
+      <button
+        class="warning"
+        onclick="editQuote('${quote.complaint_id}')"
+      >
+        ✏️ Update Quote
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   EDIT QUOTE
+===================================================== */
+
+async function editQuote(complaintId){
+
+  const quote =
+    await getMyQuote(complaintId);
+
+
+  if(!quote) return;
+
+
+  const amount =
+    prompt(
+      "Enter new quote amount:",
+      quote.quote_amount
+    );
+
+
+  if(amount === null) return;
+
+
+  const time =
+    prompt(
+      "Estimated repair time:",
+      quote.estimated_time || ""
+    );
+
+
+  const note =
+    prompt(
+      "Vendor note:",
+      quote.vendor_note || ""
+    );
+
+
+  const {error} =
+    await sb
+      .from("repair_quotes")
+      .update({
+
+        quote_amount:
+          parseFloat(amount),
+
+        estimated_time:
+          time,
+
+        vendor_note:
+          note,
+
+        status:"updated",
+
+        updated_at:
+          new Date().toISOString()
+
+      })
+      .eq(
+        "id",
+        quote.id
+      )
+      .eq(
+        "vendor_id",
+        currentUser.id
+      );
+
+
+  if(error){
+
+    alert(error.message);
+    return;
+
+  }
+
+
+  alert(
+    "Quote updated successfully."
+  );
+
+
+  await loadComplaints();
+
+  await loadMyQuotes();
+
+}
+
+
+/* =====================================================
+   MY QUOTES
+===================================================== */
+
+async function loadMyQuotes(){
+
+  const list =
+    document.getElementById(
+      "myQuotesList"
+    );
+
+
+  const {data,error} =
+    await sb
+      .from("repair_quotes")
+      .select("*")
+      .eq(
+        "vendor_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(error){
+
+    list.innerHTML =
+      "<p class='muted'>"
+      + error.message
+      + "</p>";
+
+    return;
+
+  }
+
+
+  if(!data || data.length===0){
+
+    list.innerHTML =
+      "<p class='muted'>No quotes submitted yet.</p>";
+
+    return;
+
+  }
+
+
+  list.innerHTML="";
+
+
+  data.forEach(q=>{
+
+    const div =
+      document.createElement("div");
+
+    div.className="complaint";
+
+
+    div.innerHTML=`
+
+      <p>
+        <strong>Complaint:</strong>
+        ${escapeHtml(
+          String(q.complaint_id)
+        )}
+      </p>
+
+      <p>
+        <strong>Quote:</strong>
+        ₹${escapeHtml(
+          String(q.quote_amount)
+        )}
+      </p>
+
+      <p>
+        <strong>Time:</strong>
+        ${escapeHtml(
+          q.estimated_time || "-"
+        )}
+      </p>
+
+      <p>
+        <strong>Status:</strong>
+        <span class="status">
+          ${escapeHtml(
+            q.status || "submitted"
+          )}
+        </span>
+      </p>
+
+    `;
+
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+/* =====================================================
+   HTML ESCAPE
+===================================================== */
+
+function escapeHtml(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+</html> const r=await sb.auth.signInWithPassword({email,password});b.disabled=false;b.textContent="Login करें";
  if(r.error)return showMsg(r.error.message);
  if(!(await isVendor(r.data.user.id))){await sb.auth.signOut();return showMsg("यह account Vendor नहीं है।")}
  showPanel(r.data.user);
