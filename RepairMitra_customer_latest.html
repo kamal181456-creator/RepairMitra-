@@ -1,40 +1,2124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RepairMitra Customer Panel</title>
-<meta name="theme-color" content="#1769e0">
+
+<title>RepairMitra Customer</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,sans-serif;background:#f4f7fb;color:#172033}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-a{text-decoration:none;color:inherit}
-.hidden{display:none!important}
-.wrap{max-width:1050px;margin:auto;padding:14px}
-.topbar{background:linear-gradient(135deg,#1769e0,#0d47a1);color:#fff;border-radius:24px;padding:18px;box-shadow:0 12px 35px #1769e033}
-.topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{display:flex;gap:12px;align-items:center}
-.brand-icon{width:48px;height:48px;border-radius:15px;background:#ffffff20;display:grid;place-items:center;font-size:26px}
-.brand h1{font-size:23px;margin:0}
-.brand p{margin:3px 0 0;font-size:12px;opacity:.85}
-.icon-btn{border:1px solid #ffffff44;background:#ffffff18;color:#fff;border-radius:12px;padding:10px 12px;position:relative}
-.badge{position:absolute;right:-5px;top:-6px;background:#ef4444;color:#fff;border-radius:50%;min-width:19px;height:19px;font-size:11px;display:grid;place-items:center}
-.nav{display:flex;gap:8px;margin-top:16px;overflow:auto;padding-bottom:2px}
-.nav button{white-space:nowrap;border:1px solid #ffffff30;background:#ffffff12;color:#fff;padding:10px 14px;border-radius:12px}
-.nav button.active,.nav button:hover{background:#fff;color:#0d47a1}
-.card{background:#fff;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 7px 25px #0000000b;border:1px solid #e8edf4}
-.auth-wrap{max-width:520px;margin:35px auto}
-.auth-head{text-align:center;margin-bottom:18px}
-.auth-head .big{font-size:48px}
-.auth-head h2{margin:8px 0 5px}
-.small{font-size:13px;color:#667085}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.stat{background:#f7f9fc;border:1px solid #e7edf5;border-radius:16px;padding:16px}
-.stat b{display:block;font-size:24px;margin-top:5px}
-label{display:block;font-size:13px;font-weight:700;margin-top:8px}
+
+*{
+ box-sizing:border-box;
+}
+
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f4f6f8;
+ color:#1f2937;
+}
+
+header{
+ background:#111827;
+ color:white;
+ padding:14px 18px;
+ position:sticky;
+ top:0;
+ z-index:20;
+}
+
+.header{
+ max-width:1100px;
+ margin:auto;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+
+header h2{
+ margin:0;
+}
+
+button{
+ border:0;
+ padding:11px 15px;
+ border-radius:8px;
+ cursor:pointer;
+ font-weight:bold;
+}
+
+.primary{
+ background:#2563eb;
+ color:white;
+}
+
+.success{
+ background:#16a34a;
+ color:white;
+}
+
+.danger{
+ background:#dc2626;
+ color:white;
+}
+
+.warning{
+ background:#f59e0b;
+ color:white;
+}
+
+.secondary{
+ background:#e5e7eb;
+ color:#111827;
+}
+
+.container{
+ max-width:1100px;
+ margin:auto;
+ padding:18px;
+}
+
+.card{
+ background:white;
+ padding:20px;
+ margin-bottom:18px;
+ border-radius:14px;
+ box-shadow:0 3px 12px rgba(0,0,0,.07);
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:14px;
+}
+
+input,textarea,select{
+ width:100%;
+ padding:12px;
+ margin:6px 0 13px;
+ border:1px solid #d1d5db;
+ border-radius:8px;
+ font-size:15px;
+}
+
+textarea{
+ min-height:100px;
+}
+
+nav{
+ display:flex;
+ gap:8px;
+ overflow:auto;
+ max-width:1100px;
+ margin:12px auto 0;
+}
+
+nav button{
+ white-space:nowrap;
+}
+
+.page{
+ display:none;
+}
+
+.page.active{
+ display:block;
+}
+
+.complaint{
+ border:1px solid #e5e7eb;
+ padding:17px;
+ border-radius:12px;
+ margin-top:14px;
+}
+
+.vendor{
+ border:1px solid #dbeafe;
+ padding:17px;
+ border-radius:12px;
+ margin-top:15px;
+ background:#fff;
+}
+
+.vendor-top{
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ align-items:start;
+}
+
+.price{
+ font-size:25px;
+ font-weight:bold;
+}
+
+.rating{
+ font-weight:bold;
+}
+
+.status{
+ display:inline-block;
+ background:#e5e7eb;
+ padding:5px 9px;
+ border-radius:20px;
+ font-size:12px;
+ font-weight:bold;
+}
+
+.map{
+ display:inline-block;
+ text-decoration:none;
+ background:#16a34a;
+ color:white;
+ padding:9px 12px;
+ border-radius:7px;
+ margin-top:8px;
+}
+
+.actions{
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ margin-top:12px;
+}
+
+.muted{
+ color:#6b7280;
+}
+
+.message{
+ padding:12px;
+ border-radius:8px;
+ margin-bottom:12px;
+ display:none;
+}
+
+.error{
+ background:#fee2e2;
+ color:#991b1b;
+}
+
+.ok{
+ background:#dcfce7;
+ color:#166534;
+}
+
+.hidden{
+ display:none!important;
+}
+
+.chat-box{
+ height:350px;
+ overflow:auto;
+ border:1px solid #ddd;
+ padding:12px;
+ border-radius:10px;
+ background:#f9fafb;
+}
+
+.chat-message{
+ padding:9px;
+ margin:7px 0;
+ border-radius:10px;
+ max-width:80%;
+}
+
+.mine{
+ background:#dbeafe;
+ margin-left:auto;
+}
+
+.theirs{
+ background:#e5e7eb;
+ margin-right:auto;
+}
+
+.distance{
+ font-weight:bold;
+}
+
+@media(max-width:700px){
+
+ .grid{
+  grid-template-columns:1fr;
+ }
+
+ .vendor-top{
+  flex-direction:column;
+ }
+
+ .container{
+  padding:12px;
+ }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="header">
+
+<h2>🔧 RepairMitra</h2>
+
+<button
+class="danger"
+onclick="logout()"
+>
+Logout
+</button>
+
+</div>
+
+<nav>
+
+<button
+class="secondary"
+onclick="showPage('home')"
+>
+Home
+</button>
+
+<button
+class="secondary"
+onclick="showPage('newRepair')"
+>
+🛠️ New Repair
+</button>
+
+<button
+class="secondary"
+onclick="showPage('myRepairs')"
+>
+📋 My Repairs
+</button>
+
+<button
+class="secondary"
+onclick="showPage('account')"
+>
+👤 Account
+</button>
+
+</nav>
+
+</header>
+
+
+<div id="loginPage" class="container">
+
+<div class="card">
+
+<h2>Customer Login</h2>
+
+<div
+id="loginMessage"
+class="message"
+></div>
+
+<input
+id="email"
+type="email"
+placeholder="Email"
+>
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+>
+
+<button
+class="primary"
+style="width:100%"
+onclick="login()"
+>
+Login
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>Create Account</h3>
+
+<input
+id="signupName"
+placeholder="Full Name"
+>
+
+<input
+id="signupPhone"
+placeholder="Mobile Number"
+>
+
+<input
+id="signupEmail"
+type="email"
+placeholder="Email"
+>
+
+<input
+id="signupPassword"
+type="password"
+placeholder="Password"
+>
+
+<button
+class="success"
+style="width:100%"
+onclick="signup()"
+>
+Create Account
+</button>
+
+</div>
+
+</div>
+
+
+<div id="app" class="hidden">
+
+<div class="container">
+
+
+<!-- HOME -->
+
+<section
+id="home"
+class="page active"
+>
+
+<div class="card">
+
+<h2>Welcome to RepairMitra 👋</h2>
+
+<p>
+Find trusted mobile repair vendors,
+compare prices and choose the best repair service.
+</p>
+
+<button
+class="primary"
+onclick="showPage('newRepair')"
+>
+Create Repair Request
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>How it works</h3>
+
+<p>1️⃣ Submit your mobile repair problem</p>
+<p>2️⃣ Approved vendors receive your request</p>
+<p>3️⃣ Vendors send their own quotes</p>
+<p>4️⃣ Compare price, rating and distance</p>
+<p>5️⃣ Select your preferred vendor</p>
+<p>6️⃣ Chat or call the vendor</p>
+<p>7️⃣ Complete repair and leave a review</p>
+
+</div>
+
+</section>
+
+
+<!-- NEW REPAIR -->
+
+<section
+id="newRepair"
+class="page"
+>
+
+<div class="card">
+
+<h2>🛠️ New Repair Request</h2>
+
+<div
+id="repairMessage"
+class="message"
+></div>
+
+<div class="grid">
+
+<div>
+
+<label>Mobile Brand</label>
+
+<input
+id="brand"
+placeholder="Example: Samsung"
+>
+
+</div>
+
+<div>
+
+<label>Mobile Model</label>
+
+<input
+id="model"
+placeholder="Example: Galaxy A15"
+>
+
+</div>
+
+</div>
+
+
+<label>Problem</label>
+
+<input
+id="problem"
+placeholder="Example: Display broken"
+>
+
+
+<label>Detailed Description</label>
+
+<textarea
+id="description"
+placeholder="Describe the problem"
+></textarea>
+
+
+<label>Customer Address</label>
+
+<textarea
+id="address"
+placeholder="Complete address"
+></textarea>
+
+
+<div class="grid">
+
+<div>
+
+<label>City</label>
+
+<input
+id="customerCity"
+placeholder="City"
+>
+
+</div>
+
+<div>
+
+<label>PIN Code</label>
+
+<input
+id="customerPin"
+placeholder="PIN Code"
+>
+
+</div>
+
+</div>
+
+
+<label>Location</label>
+
+<div class="grid">
+
+<div>
+
+<input
+id="customerLat"
+placeholder="Latitude"
+>
+
+</div>
+
+<div>
+
+<input
+id="customerLon"
+placeholder="Longitude"
+>
+
+</div>
+
+</div>
+
+
+<button
+class="success"
+onclick="getCustomerLocation()"
+>
+📍 Use My Current Location
+</button>
+
+
+<br><br>
+
+<button
+class="primary"
+onclick="submitComplaint()"
+>
+🚀 Submit Repair Request
+</button>
+
+</div>
+
+</section>
+
+
+<!-- MY REPAIRS -->
+
+<section
+id="myRepairs"
+class="page"
+>
+
+<div class="card">
+
+<div style="display:flex;justify-content:space-between;align-items:center">
+
+<h2>📋 My Repairs</h2>
+
+<button
+class="primary"
+onclick="loadComplaints()"
+>
+🔄 Refresh
+</button>
+
+</div>
+
+<div id="complaintsList">
+
+<p class="muted">
+Loading...
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ACCOUNT -->
+
+<section
+id="account"
+class="page"
+>
+
+<div class="card">
+
+<h2>👤 My Account</h2>
+
+<p>
+<strong>Email:</strong>
+<span id="accountEmail"></span>
+</p>
+
+<p>
+<strong>User ID:</strong>
+<span id="accountId"></span>
+</p>
+
+</div>
+
+</section>
+
+
+<!-- QUOTES -->
+
+<section
+id="quotesPage"
+class="page"
+>
+
+<div class="card">
+
+<h2>💰 Vendor Quotes</h2>
+
+<p class="muted">
+Compare price, rating, distance and shop details.
+</p>
+
+<div id="quotesList"></div>
+
+</div>
+
+</section>
+
+
+<!-- CHAT -->
+
+<section
+id="chatPage"
+class="page"
+>
+
+<div class="card">
+
+<h2>💬 Chat with Vendor</h2>
+
+<p id="chatVendorName"></p>
+
+<div
+id="chatBox"
+class="chat-box"
+></div>
+
+<br>
+
+<textarea
+id="chatInput"
+placeholder="Type your message..."
+></textarea>
+
+<button
+class="primary"
+onclick="sendMessage()"
+>
+Send Message
+</button>
+
+</div>
+
+</section>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+"https://rqnmshqrwntxilwnhqwa.supabase.co";
+
+/*
+ Use your EXISTING publishable/anon key.
+ Do NOT use service_role/secret key.
+*/
+
+const SUPABASE_KEY =
+"YOUR_EXISTING_SUPABASE_PUBLISHABLE_KEY";
+
+const sb =
+window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+
+let currentUser=null;
+let currentComplaint=null;
+let currentChatVendor=null;
+
+
+/* =====================================================
+   SESSION
+===================================================== */
+
+async function init(){
+
+ const {data}=await sb.auth.getSession();
+
+ if(data.session){
+
+  currentUser=data.session.user;
+
+  openApp();
+
+ }
+
+}
+
+init();
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+async function login(){
+
+ const email=
+ document.getElementById("email").value.trim();
+
+ const password=
+ document.getElementById("password").value;
+
+ const {data,error}=
+ await sb.auth.signInWithPassword({
+  email,
+  password
+ });
+
+ if(error){
+
+  showLoginMessage(error.message,false);
+
+  return;
+
+ }
+
+ currentUser=data.user;
+
+ openApp();
+
+}
+
+
+/* =====================================================
+   SIGNUP
+===================================================== */
+
+async function signup(){
+
+ const name=
+ document.getElementById("signupName").value.trim();
+
+ const phone=
+ document.getElementById("signupPhone").value.trim();
+
+ const email=
+ document.getElementById("signupEmail").value.trim();
+
+ const password=
+ document.getElementById("signupPassword").value;
+
+
+ if(!email || !password){
+
+  showLoginMessage(
+   "Email and password are required.",
+   false
+  );
+
+  return;
+
+ }
+
+
+ const {data,error}=
+ await sb.auth.signUp({
+
+  email,
+  password,
+
+  options:{
+   data:{
+    full_name:name,
+    phone:phone
+   }
+  }
+
+ });
+
+
+ if(error){
+
+  showLoginMessage(
+   error.message,
+   false
+  );
+
+  return;
+
+ }
+
+
+ showLoginMessage(
+  "Account created. Please verify your email if required.",
+  true
+ );
+
+}
+
+
+/* =====================================================
+   OPEN APP
+===================================================== */
+
+function openApp(){
+
+ document
+  .getElementById("loginPage")
+  .classList.add("hidden");
+
+ document
+  .getElementById("app")
+  .classList.remove("hidden");
+
+ document
+  .getElementById("accountEmail")
+  .textContent=currentUser.email || "";
+
+ document
+  .getElementById("accountId")
+  .textContent=currentUser.id || "";
+
+ loadComplaints();
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+ await sb.auth.signOut();
+
+ location.reload();
+
+}
+
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+
+function showPage(page){
+
+ document
+  .querySelectorAll(".page")
+  .forEach(x=>x.classList.remove("active"));
+
+ document
+  .getElementById(page)
+  .classList.add("active");
+
+}
+
+
+/* =====================================================
+   LOCATION
+===================================================== */
+
+function getCustomerLocation(){
+
+ if(!navigator.geolocation){
+
+  alert("Location is not supported.");
+
+  return;
+
+ }
+
+
+ navigator.geolocation.getCurrentPosition(
+
+  position=>{
+
+   const lat=
+   position.coords.latitude;
+
+   const lon=
+   position.coords.longitude;
+
+   document.getElementById("customerLat").value=
+   lat;
+
+   document.getElementById("customerLon").value=
+   lon;
+
+  },
+
+  ()=>{
+   alert(
+    "Please allow location permission."
+   );
+  },
+
+  {
+   enableHighAccuracy:true,
+   timeout:10000
+  }
+
+ );
+
+}
+
+
+/* =====================================================
+   SUBMIT COMPLAINT
+===================================================== */
+
+async function submitComplaint(){
+
+ if(!currentUser){
+
+  alert("Please login first.");
+  return;
+
+ }
+
+
+ const brand=
+ document.getElementById("brand").value.trim();
+
+ const model=
+ document.getElementById("model").value.trim();
+
+ const problem=
+ document.getElementById("problem").value.trim();
+
+ const description=
+ document.getElementById("description").value.trim();
+
+ const address=
+ document.getElementById("address").value.trim();
+
+ const city=
+ document.getElementById("customerCity").value.trim();
+
+ const pin=
+ document.getElementById("customerPin").value.trim();
+
+ const lat=
+ parseFloat(
+  document.getElementById("customerLat").value
+ );
+
+ const lon=
+ parseFloat(
+  document.getElementById("customerLon").value
+ );
+
+
+ if(!brand || !model || !problem){
+
+  showRepairMessage(
+   "Please enter brand, model and problem.",
+   false
+  );
+
+  return;
+
+ }
+
+
+ /*
+  We use common existing complaint fields where possible.
+  Additional marketplace information is stored in description.
+ */
+
+ const fullDescription=
+ `Brand: ${brand}
+Model: ${model}
+Problem: ${problem}
+Details: ${description}
+Address: ${address}
+City: ${city}
+PIN: ${pin}
+Latitude: ${Number.isFinite(lat)?lat:""}
+Longitude: ${Number.isFinite(lon)?lon:""}`;
+
+
+ /*
+  IMPORTANT:
+  If your existing complaints table requires other NOT NULL
+  fields, those fields should be added here according to
+  your existing schema.
+ */
+
+
+ const payload={
+
+  user_id:currentUser.id,
+
+  customer_id:currentUser.id,
+
+  mobile_model:
+   brand+" "+model,
+
+  problem:problem,
+
+  description:fullDescription,
+
+  address:address,
+
+  marketplace_status:
+   "complaint_created",
+
+  created_at:
+   new Date().toISOString()
+
+ };
+
+
+ if(Number.isFinite(lat)){
+
+  payload.latitude=lat;
+
+ }
+
+ if(Number.isFinite(lon)){
+
+  payload.longitude=lon;
+
+ }
+
+
+ const {data,error}=
+ await sb
+  .from("complaints")
+  .insert(payload)
+  .select()
+  .single();
+
+
+ if(error){
+
+  showRepairMessage(
+   error.message,
+   false
+  );
+
+  return;
+
+ }
+
+
+ showRepairMessage(
+  "Repair request created successfully.",
+  true
+ );
+
+
+ document.getElementById("brand").value="";
+ document.getElementById("model").value="";
+ document.getElementById("problem").value="";
+ document.getElementById("description").value="";
+
+
+ await loadComplaints();
+
+ showPage("myRepairs");
+
+}
+
+
+/* =====================================================
+   LOAD CUSTOMER COMPLAINTS
+===================================================== */
+
+async function loadComplaints(){
+
+ if(!currentUser) return;
+
+
+ const list=
+ document.getElementById(
+  "complaintsList"
+ );
+
+
+ list.innerHTML=
+ "<p class='muted'>Loading...</p>";
+
+
+ const {data,error}=
+ await sb
+  .from("complaints")
+  .select("*")
+  .or(
+   `user_id.eq.${currentUser.id},customer_id.eq.${currentUser.id}`
+  )
+  .order(
+   "created_at",
+   {
+    ascending:false
+   }
+  );
+
+
+ if(error){
+
+  list.innerHTML=
+   "<p class='muted'>"
+   +escapeHtml(error.message)
+   +"</p>";
+
+  return;
+
+ }
+
+
+ if(!data || data.length===0){
+
+  list.innerHTML=
+   "<p class='muted'>No repair requests yet.</p>";
+
+  return;
+
+ }
+
+
+ list.innerHTML="";
+
+
+ data.forEach(c=>{
+
+  const div=
+  document.createElement("div");
+
+  div.className="complaint";
+
+
+  div.innerHTML=`
+
+   <h3>
+    📱 ${escapeHtml(
+     c.mobile_model ||
+     c.phone_model ||
+     "Mobile"
+    )}
+   </h3>
+
+   <p>
+    <strong>Problem:</strong>
+    ${escapeHtml(
+     c.problem ||
+     c.issue ||
+     "Not specified"
+    )}
+   </p>
+
+   <p>
+    <strong>Status:</strong>
+
+    <span class="status">
+     ${escapeHtml(
+      c.marketplace_status ||
+      c.status ||
+      "New"
+     )}
+    </span>
+   </p>
+
+   <p class="muted">
+    Complaint ID:
+    ${escapeHtml(String(c.id))}
+   </p>
+
+   <div class="actions">
+
+    <button
+     class="primary"
+     onclick="openQuotes('${escapeHtml(String(c.id))}')"
+    >
+     💰 View Vendor Quotes
+    </button>
+
+   </div>
+
+  `;
+
+
+  list.appendChild(div);
+
+ });
+
+}
+
+
+/* =====================================================
+   OPEN QUOTES
+===================================================== */
+
+async function openQuotes(complaintId){
+
+ currentComplaint=complaintId;
+
+ showPage("quotesPage");
+
+ await loadQuotes();
+
+}
+
+
+/* =====================================================
+   LOAD QUOTES
+===================================================== */
+
+async function loadQuotes(){
+
+ const list=
+ document.getElementById(
+  "quotesList"
+ );
+
+
+ list.innerHTML=
+ "<p class='muted'>Loading vendor quotes...</p>";
+
+
+ /*
+  Customer can see all quotes for their complaint.
+ */
+
+ const {data:quotes,error}=
+ await sb
+  .from("repair_quotes")
+  .select("*")
+  .eq(
+   "complaint_id",
+   String(currentComplaint)
+  )
+  .order(
+   "quote_amount",
+   {
+    ascending:true
+   }
+  );
+
+
+ if(error){
+
+  list.innerHTML=
+   "<p class='muted'>"
+   +escapeHtml(error.message)
+   +"</p>";
+
+  return;
+
+ }
+
+
+ if(!quotes || quotes.length===0){
+
+  list.innerHTML=
+   `
+   <div class="card">
+    <h3>⏳ No quotes yet</h3>
+    <p class="muted">
+     Vendors have not submitted quotes yet.
+     Please check again later.
+    </p>
+   </div>
+   `;
+
+  return;
+
+ }
+
+
+ list.innerHTML="";
+
+
+ for(const quote of quotes){
+
+  const vendor=
+   await getVendorProfile(
+    quote.vendor_id
+   );
+
+
+  const div=
+   document.createElement("div");
+
+  div.className="vendor";
+
+
+  const shop=
+   vendor.shop;
+
+
+  const rating=
+   vendor.rating;
+
+
+  let distance="";
+
+
+  /*
+   Distance calculation requires customer
+   latitude/longitude and shop coordinates.
+  */
+
+  const customer=
+   await getComplaintLocation(
+    currentComplaint
+   );
+
+
+  if(
+   customer &&
+   shop &&
+   shop.latitude &&
+   shop.longitude
+  ){
+
+   const d=
+   calculateDistance(
+    customer.latitude,
+    customer.longitude,
+    shop.latitude,
+    shop.longitude
+   );
+
+   distance=
+    `<p class="distance">📏 ${d.toFixed(1)} km away</p>`;
+
+  }
+
+
+  let mapButton="";
+
+
+  if(shop){
+
+   if(shop.map_url){
+
+    mapButton=
+     `
+     <a
+      class="map"
+      target="_blank"
+      href="${escapeHtml(shop.map_url)}"
+     >
+      🗺️ View Shop
+     </a>
+     `;
+
+   }
+   else if(
+    shop.latitude &&
+    shop.longitude
+   ){
+
+    mapButton=
+     `
+     <a
+      class="map"
+      target="_blank"
+      href="https://www.google.com/maps/dir/?api=1&destination=${shop.latitude},${shop.longitude}"
+     >
+      🗺️ Get Directions
+     </a>
+     `;
+
+   }
+
+  }
+
+
+  const phone=
+   shop?.phone ||
+   vendor.profile?.phone ||
+   "";
+
+
+  const callButton=
+   phone
+   ?
+   `
+   <a
+    href="tel:${escapeHtml(phone)}"
+    class="map"
+   >
+    📞 Call Vendor
+   </a>
+   `
+   : "";
+
+
+  div.innerHTML=`
+
+   <div class="vendor-top">
+
+    <div>
+
+     <h3>
+      🏪 ${escapeHtml(
+       shop?.shop_name ||
+       "Repair Vendor"
+      )}
+     </h3>
+
+     <p>
+      👤
+      ${escapeHtml(
+       shop?.owner_name ||
+       vendor.profile?.full_name ||
+       "Vendor"
+      )}
+     </p>
+
+     <p class="rating">
+      ⭐ ${rating.toFixed(1)} / 5
+      (${vendor.reviewCount} reviews)
+     </p>
+
+    </div>
+
+    <div class="price">
+     ₹${escapeHtml(
+      String(quote.quote_amount)
+     )}
+    </div>
+
+   </div>
+
+
+   <p>
+    ⏱️ <strong>Estimated:</strong>
+    ${escapeHtml(
+     quote.estimated_time || "-"
+    )}
+   </p>
+
+   <p>
+    🔧 <strong>Parts:</strong>
+    ${escapeHtml(
+     quote.parts_details || "-"
+    )}
+   </p>
+
+   <p>
+    🛠️ <strong>Service:</strong>
+    ${escapeHtml(
+     quote.service_details || "-"
+    )}
+   </p>
+
+   ${
+    shop
+    ?
+    `
+    <p>
+     📍
+     ${escapeHtml(
+      [
+       shop.address,
+       shop.area,
+       shop.city,
+       shop.pincode
+      ]
+      .filter(Boolean)
+      .join(", ")
+     )}
+    </p>
+    `
+    : ""
+   }
+
+   ${distance}
+
+   <div class="actions">
+
+    ${mapButton}
+
+    ${callButton}
+
+    <button
+     class="primary"
+     onclick="openChat('${escapeHtml(quote.vendor_id)}','${escapeHtml(shop?.shop_name || "Vendor")}')"
+    >
+     💬 Chat
+    </button>
+
+    <button
+     class="success"
+     onclick="selectVendor('${escapeHtml(quote.id)}','${escapeHtml(quote.vendor_id)}')"
+    >
+     ✅ Select Vendor
+    </button>
+
+   </div>
+
+  `;
+
+
+  list.appendChild(div);
+
+ }
+
+}
+
+
+/* =====================================================
+   VENDOR PROFILE + SHOP
+===================================================== */
+
+async function getVendorProfile(vendorId){
+
+ const {data:profile}=
+ await sb
+  .from("profiles")
+  .select(
+   "id,full_name,phone"
+  )
+  .eq(
+   "id",
+   vendorId
+  )
+  .maybeSingle();
+
+
+ const {data:shop}=
+ await sb
+  .from("vendor_shops")
+  .select("*")
+  .eq(
+   "vendor_id",
+   vendorId
+  )
+  .maybeSingle();
+
+
+ const {data:reviews}=
+ await sb
+  .from("vendor_reviews")
+  .select("rating")
+  .eq(
+   "vendor_id",
+   vendorId
+  );
+
+
+ let rating=0;
+
+ let count=0;
+
+
+ if(reviews && reviews.length){
+
+  count=reviews.length;
+
+  rating=
+   reviews.reduce(
+    (sum,r)=>
+     sum+Number(r.rating),
+    0
+   ) / count;
+
+ }
+
+
+ return{
+
+  profile,
+
+  shop,
+
+  rating,
+
+  reviewCount:count
+
+ };
+
+}
+
+
+/* =====================================================
+   CUSTOMER COMPLAINT LOCATION
+===================================================== */
+
+async function getComplaintLocation(id){
+
+ const {data,error}=
+ await sb
+  .from("complaints")
+  .select(
+   "latitude,longitude,description"
+  )
+  .eq(
+   "id",
+   id
+  )
+  .maybeSingle();
+
+
+ if(error || !data){
+
+  return null;
+
+ }
+
+
+ let lat=
+  Number(data.latitude);
+
+ let lon=
+  Number(data.longitude);
+
+
+ /*
+  Some existing complaints may have coordinates
+  only inside description.
+ */
+
+ if(
+  !Number.isFinite(lat) ||
+  !Number.isFinite(lon)
+ ){
+
+  const text=
+   data.description || "";
+
+  const match=
+   text.match(
+    /Latitude:\s*([-0-9.]+)[\s\S]*Longitude:\s*([-0-9.]+)/
+   );
+
+
+  if(match){
+
+   lat=Number(match[1]);
+   lon=Number(match[2]);
+
+  }
+
+ }
+
+
+ if(
+  !Number.isFinite(lat) ||
+  !Number.isFinite(lon)
+ ){
+
+  return null;
+
+ }
+
+
+ return{
+  latitude:lat,
+  longitude:lon
+ };
+
+}
+
+
+/* =====================================================
+   DISTANCE
+===================================================== */
+
+function calculateDistance(
+ lat1,
+ lon1,
+ lat2,
+ lon2
+){
+
+ const R=6371;
+
+ const dLat=
+  (lat2-lat1)*
+  Math.PI/180;
+
+ const dLon=
+  (lon2-lon1)*
+  Math.PI/180;
+
+ const a=
+  Math.sin(dLat/2)*
+  Math.sin(dLat/2)
+  +
+  Math.cos(lat1*Math.PI/180)*
+  Math.cos(lat2*Math.PI/180)*
+  Math.sin(dLon/2)*
+  Math.sin(dLon/2);
+
+ const c=
+  2*
+  Math.atan2(
+   Math.sqrt(a),
+   Math.sqrt(1-a)
+  );
+
+ return R*c;
+
+}
+
+
+/* =====================================================
+   SELECT VENDOR
+===================================================== */
+
+async function selectVendor(
+ quoteId,
+ vendorId
+){
+
+ if(!confirm(
+  "Are you sure you want to select this vendor?"
+ )){
+
+  return;
+
+ }
+
+
+ /*
+  Update complaint.
+ */
+
+ const {error}=
+ await sb
+  .from("complaints")
+  .update({
+
+   selected_vendor_id:
+    vendorId,
+
+   selected_quote_id:
+    quoteId,
+
+   marketplace_status:
+    "vendor_selected"
+
+  })
+  .eq(
+   "id",
+   currentComplaint
+  )
+  .or(
+   `user_id.eq.${currentUser.id},customer_id.eq.${currentUser.id}`
+  );
+
+
+ if(error){
+
+  alert(error.message);
+  return;
+
+ }
+
+
+ /*
+  Create repair order.
+ */
+
+ const {data:quote}=
+ await sb
+  .from("repair_quotes")
+  .select("quote_amount")
+  .eq(
+   "id",
+   quoteId
+  )
+  .maybeSingle();
+
+
+ if(quote){
+
+  const {error:orderError}=
+  await sb
+   .from("repair_orders")
+   .upsert({
+
+    complaint_id:
+     String(currentComplaint),
+
+    customer_id:
+     currentUser.id,
+
+    vendor_id:
+     vendorId,
+
+    quote_id:
+     quoteId,
+
+    status:
+     "vendor_selected",
+
+    agreed_amount:
+     quote.quote_amount,
+
+    created_at:
+     new Date().toISOString(),
+
+    updated_at:
+     new Date().toISOString()
+
+   },{
+    onConflict:"complaint_id"
+   });
+
+
+  if(orderError){
+
+   console.log(
+    "Order creation:",
+    orderError.message
+   );
+
+  }
+
+ }
+
+
+ alert(
+  "Vendor selected successfully!"
+ );
+
+
+ await loadComplaints();
+
+ showPage("myRepairs");
+
+}
+
+
+/* =====================================================
+   CHAT
+===================================================== */
+
+async function openChat(
+ vendorId,
+ vendorName
+){
+
+ currentChatVendor=vendorId;
+
+ document.getElementById(
+  "chatVendorName"
+ ).textContent=
+ "Chat with: "+vendorName;
+
+
+ showPage("chatPage");
+
+ await loadMessages();
+
+}
+
+
+async function loadMessages(){
+
+ const box=
+ document.getElementById("chatBox");
+
+
+ box.innerHTML=
+ "<p class='muted'>Loading messages...</p>";
+
+
+ const {data,error}=
+ await sb
+  .from("repair_messages")
+  .select("*")
+  .eq(
+   "complaint_id",
+   String(currentComplaint)
+  )
+  .order(
+   "created_at",
+   {
+    ascending:true
+   }
+  );
+
+
+ if(error){
+
+  box.innerHTML=
+   "<p class='muted'>"
+   +escapeHtml(error.message)
+   +"</p>";
+
+  return;
+
+ }
+
+
+ box.innerHTML="";
+
+
+ (data || []).forEach(m=>{
+
+  /*
+   Only display this customer/vendor conversation.
+  */
+
+  if(
+   !(
+    (m.sender_id===currentUser.id &&
+     m.receiver_id===currentChatVendor)
+    ||
+    (m.sender_id===currentChatVendor &&
+     m.receiver_id===currentUser.id)
+   )
+  ){
+
+   return;
+
+  }
+
+
+  const div=
+   document.createElement("div");
+
+
+  div.className=
+   "chat-message "
+   +
+   (
+    m.sender_id===currentUser.id
+    ? "mine"
+    : "theirs"
+   );
+
+
+  div.textContent=m.message;
+
+  box.appendChild(div);
+
+ });
+
+
+ box.scrollTop=
+ box.scrollHeight;
+
+}
+
+
+async function sendMessage(){
+
+ const text=
+ document.getElementById(
+  "chatInput"
+ ).value.trim();
+
+
+ if(!text){
+
+  return;
+
+ }
+
+
+ if(!currentChatVendor){
+
+  alert("Vendor not selected.");
+  return;
+
+ }
+
+
+ const {error}=
+ await sb
+  .from("repair_messages")
+  .insert({
+
+   complaint_id:
+    String(currentComplaint),
+
+   sender_id:
+    currentUser.id,
+
+   receiver_id:
+    currentChatVendor,
+
+   message:
+    text,
+
+   created_at:
+    new Date().toISOString()
+
+  });
+
+
+ if(error){
+
+  alert(error.message);
+  return;
+
+ }
+
+
+ document.getElementById(
+  "chatInput"
+ ).value="";
+
+
+ await loadMessages();
+
+}
+
+
+/* =====================================================
+   MESSAGES
+===================================================== */
+
+function showLoginMessage(
+ text,
+ success
+){
+
+ const el=
+ document.getElementById(
+  "loginMessage"
+ );
+
+ el.className=
+  success
+  ? "message ok"
+  : "message error";
+
+ el.textContent=text;
+
+ el.style.display="block";
+
+}
+
+
+function showRepairMessage(
+ text,
+ success
+){
+
+ const el=
+ document.getElementById(
+  "repairMessage"
+ );
+
+ el.className=
+  success
+  ? "message ok"
+  : "message error";
+
+ el.textContent=text;
+
+ el.style.display="block";
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value){
+
+ return String(value ?? "")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+</html>label{display:block;font-size:13px;font-weight:700;margin-top:8px}
 input,select,textarea{width:100%;padding:13px;margin:6px 0;border-radius:12px;border:1px solid #ccd5e2;background:#fff;outline:none}
 input:focus,select:focus,textarea:focus{border-color:#1769e0;box-shadow:0 0 0 3px #1769e018}
 textarea{min-height:95px;resize:vertical}
