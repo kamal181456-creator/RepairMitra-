@@ -1,37 +1,5 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RepairMitra • Admin Login</title>
-<meta name="theme-color" content="#0f172a">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}body{min-height:100vh;background:linear-gradient(135deg,#eef4ff 0%,#f8fafc 50%,#eef2ff 100%);color:#172033;display:flex;align-items:center;justify-content:center;padding:20px}.shell{width:min(450px,100%)}.card{background:rgba(255,255,255,.97);border:1px solid #e2e8f0;border-radius:28px;padding:30px;box-shadow:0 24px 70px rgba(15,23,42,.14)}.brand{width:72px;height:72px;border-radius:22px;margin:0 auto 16px;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,#2563eb,#4f46e5);box-shadow:0 12px 28px rgba(37,99,235,.25)}h1{text-align:center;font-size:26px;margin:0;font-weight:850;letter-spacing:-.5px}.sub{text-align:center;color:#64748b;margin:7px 0 27px;font-size:14px}.secure{display:flex;align-items:center;justify-content:center;gap:7px;background:#f1f5f9;border-radius:999px;padding:8px 12px;width:max-content;max-width:100%;margin:0 auto 22px;color:#475569;font-size:12px;font-weight:700}.field{margin:16px 0}.labelrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}.labelrow label{font-size:11px;font-weight:850;letter-spacing:.7px;color:#334155}.inputwrap{position:relative}.inputwrap input{width:100%;height:50px;padding:0 46px 0 15px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;font-size:15px;outline:none;transition:.2s}.inputwrap input:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.1)}.eye{position:absolute;right:8px;top:7px;width:36px;height:36px;border:0;background:transparent;border-radius:10px;cursor:pointer;font-size:18px}.eye:hover{background:#f1f5f9}.btn{width:100%;height:50px;border:0;border-radius:14px;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;box-shadow:0 10px 22px rgba(37,99,235,.2)}.btn:disabled{opacity:.65;cursor:wait}.forgot{display:flex;justify-content:center;margin:18px 0 4px;color:#2563eb;text-decoration:none;font-size:14px;font-weight:800}.forgot:hover{text-decoration:underline}.msg{display:none;margin-top:15px;padding:12px 14px;border-radius:13px;font-size:13px;line-height:1.5}.ok{display:block;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}.err{display:block;background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}.note{margin-top:21px;padding:13px 14px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.55}.back{display:block;text-align:center;margin-top:20px;color:#64748b;text-decoration:none;font-size:13px;font-weight:700}.back:hover{color:#2563eb}.footer{text-align:center;color:#94a3b8;font-size:11px;margin-top:14px}@media(max-width:420px){.card{padding:24px;border-radius:23px}h1{font-size:23px}}
-</style>
-</head>
-<body>
-<main class="shell"><section class="card">
-<div class="brand">🛠️</div>
-<h1>RepairMitra Admin</h1>
-<div class="sub">Private Management Console</div>
-<div class="secure">🔒 Secure administrator access</div>
-<div class="field"><div class="labelrow"><label for="email">ADMIN EMAIL</label></div><div class="inputwrap"><input id="email" type="email" autocomplete="username" placeholder="Enter admin email"></div></div>
-<div class="field"><div class="labelrow"><label for="password">PASSWORD</label></div><div class="inputwrap"><input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password"><button class="eye" type="button" onclick="togglePass()" aria-label="Show or hide password">👁️</button></div></div>
-<button id="loginBtn" class="btn" onclick="loginAdmin()">Sign In Securely</button>
-<div id="msg" class="msg"></div>
-<a class="forgot" href="../forgot-password.html?admin=1">🔐 Forgot Password?</a>
-<div class="note"><b>Admin access only.</b><br>Your Supabase account must have the approved <b>admin</b> role. The browser uses only the public Supabase key; no service-role/secret key is stored here.</div>
-<a class="back" href="../">← Back to RepairMitra</a>
-<div class="footer">RepairMitra 🛠️ • Trusted Mobile Repair Service</div>
-</section></main>
-<script>
-const sb=window.supabase.createClient("https://rqnmshqrwntxilwnhqwa.supabase.co","sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v");
-const $=id=>document.getElementById(id);
-function msg(text,ok=false){const e=$("msg");e.textContent=text;e.className="msg "+(ok?"ok":"err");e.style.display="block"}
-function togglePass(){const p=$("password");p.type=p.type==="password"?"text":"password"}
-async function verifyAdmin(){const {data:{user}}=await sb.auth.getUser();if(!user)return false;const r=await sb.from("profiles").select("role,is_active").eq("id",user.id).maybeSingle();return !r.error&&r.data&&r.data.role==="admin"&&r.data.is_active!==false}
-async function loginAdmin(){const email=$("email").value.trim(),password=$("password").value;if(!email)return msg("Please enter your admin email.");if(!password)return msg("Please enter your admin password.");const b=$("loginBtn");b.disabled=true;b.textContent="Signing in...";try{const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;if(!await verifyAdmin()){await sb.auth.signOut();throw new Error("Login was successful, but this account is not approved as an admin.")}location.href="../admin.html"}catch(e){msg(e.message||String(e))}finally{b.disabled=false;b.textContent="Sign In Securely"}}
-$("password").addEventListener("keydown",e=>{if(e.key==="Enter")loginAdmin()});
-(async()=>{try{const {data:{session}}=await sb.auth.getSession();if(session&&await verifyAdmin())location.href="../admin.html"}catch(e){}})();
-</script>
-</body></html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=../admin.html"><title>RepairMitra Admin</title></head>
+<body><p>Opening RepairMitra Admin…</p><script>location.replace('../admin.html');</script></body>
+</html>
