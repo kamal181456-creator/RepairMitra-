@@ -1,0 +1,124 @@
+/* RepairMitra Product Management - stable fix */
+(function(){
+  'use strict';
+  let scanInstance = null;
+  let scanBusy = false;
+  const q = id => document.getElementById(id);
+  const notify = (text, ok) => {
+    const el=q('pmsg');
+    if(el) el.innerHTML='<div class="msg '+(ok?'ok':'err')+'">'+esc(text)+'</div>';
+  };
+  const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function imageBox(){
+    const old=q('pimage');
+    if(!old || q('productImageUpload')) return;
+    const wrap=document.createElement('div');
+    wrap.id='productImageBox';
+    wrap.style.cssText='border:1px dashed #94a3b8;border-radius:12px;padding:12px;margin:5px 0 10px;background:#f8fafc';
+    wrap.innerHTML='<b>🖼️ Product Image</b><input id="productImageUpload" type="file" accept="image/*" capture="environment" style="width:100%;margin-top:8px"><small>📷 Camera or Gallery • Image is compressed automatically</small><img id="productImagePreview" style="display:none;max-width:160px;max-height:160px;margin-top:8px;border-radius:10px"><input id="pimage" placeholder="Image URL" style="margin-top:8px">';
+    old.replaceWith(wrap);
+    q('productImageUpload').addEventListener('change',async e=>{
+      const f=e.target.files?.[0]; if(!f)return;
+      if(f.size>8000000){alert('Please choose an image under 8 MB.');e.target.value='';return;}
+      try{ setImage(await compress(f)); }catch(_){alert('Could not read this image.');}
+    });
+  }
+  function setImage(src){
+    const p=q('pimage'),im=q('productImagePreview');
+    if(p)p.value=src||'';
+    if(im){if(src){im.src=src;im.style.display='block';}else{im.removeAttribute('src');im.style.display='none';}}
+  }
+  function compress(file){return new Promise((resolve,reject)=>{
+    const r=new FileReader();r.onerror=reject;r.onload=()=>{
+      const img=new Image();img.onerror=reject;img.onload=()=>{
+        const max=1000,s=Math.min(1,max/Math.max(img.width,img.height));
+        const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        let d=c.toDataURL('image/jpeg',.82);if(d.length>1100000)d=c.toDataURL('image/jpeg',.65);resolve(d);
+      };img.src=r.result;
+    };r.readAsDataURL(file);
+  });}
+
+  async function barcodeLookup(code){
+    try{
+      const r=await fetch('https://api.upcitemdb.com/prod/trial/lookup?upc='+encodeURIComponent(code));
+      if(!r.ok)return null;const j=await r.json(),i=j.items?.[0];
+      return i?{name:i.title||'',brand:i.brand||'',model:i.model||'',image:i.images?.[0]||'',description:i.description||''}:null;
+    }catch(_){return null;}
+  }
+  window.fillScan=async function(raw){
+    const code=String(raw||'').trim();if(!code)return;
+    let d=null;try{d=JSON.parse(code);}catch(_){ }
+    if(d&&typeof d==='object'){
+      if(d.name||d.product_name)q('pn').value=d.name||d.product_name;
+      if(d.brand)q('pb').value=d.brand;if(d.model)q('pmodel').value=d.model;
+      if(d.sku||d.barcode)q('psku').value=d.sku||d.barcode;
+      if(d.price!=null)q('pprice').value=d.price;if(d.purchase_price!=null)q('ppurchase').value=d.purchase_price;
+      if(d.stock!=null)q('pstock').value=d.stock;if(d.category)q('pc').value=d.category;
+      if(d.description)q('pdesc').value=d.description;if(d.image_url||d.image)setImage(d.image_url||d.image);
+      notify('QR data imported successfully.',true);return;
+    }
+    q('psku').value=code;notify('Barcode scanned. Looking up product details…',true);
+    const x=await barcodeLookup(code);
+    if(x){if(x.name&&!q('pn').value)q('pn').value=x.name;if(x.brand&&!q('pb').value)q('pb').value=x.brand;if(x.model&&!q('pmodel').value)q('pmodel').value=x.model;if(x.description&&!q('pdesc').value)q('pdesc').value=x.description;if(x.image)setImage(x.image);notify('Barcode found — details and image auto-filled.',true);}
+    else notify('Barcode scanned and saved to SKU. No online product record was found.',true);
+  };
+
+  window.openScanner=async function(){
+    const m=q('scannerModal');if(!m)return;m.classList.add('show');const st=q('scanStatus');if(st)st.textContent='Starting camera…';
+    try{
+      if(!window.Html5Qrcode)throw new Error('Scanner library is not loaded.');
+      if(scanInstance){try{await scanInstance.stop();}catch(_){}try{scanInstance.clear();}catch(_){} }
+      scanInstance=new Html5Qrcode('reader');
+      const cams=await Html5Qrcode.getCameras();if(!cams?.length)throw new Error('No camera found.');
+      const cam=cams.find(c=>/back|rear|environment/i.test(c.label))||cams[0];
+      const formats=[Html5QrcodeSupportedFormats.QR_CODE,Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.ITF];
+      scanBusy=false;
+      await scanInstance.start(cam.id,{fps:10,qrbox:{width:280,height:180},aspectRatio:1.5,formatsToSupport:formats},async decoded=>{
+        if(scanBusy)return;scanBusy=true;if(st)st.textContent='✅ Code scanned — filling product details…';
+        await window.fillScan(decoded);setTimeout(()=>window.closeScanner(),350);
+      },()=>{});
+      if(st)st.textContent='Camera active — point at the QR/barcode';
+    }catch(e){scanBusy=false;if(st)st.textContent='Camera error: '+(e.message||e)+' Please allow camera permission and use HTTPS.';}
+  };
+  window.closeScanner=async function(){try{if(scanInstance){await scanInstance.stop();scanInstance.clear();}}catch(_){}scanInstance=null;scanBusy=false;q('scannerModal')?.classList.remove('show');};
+
+  window.openProduct=function(p){
+    editingId=p?.id??null;
+    q('pt').textContent=editingId?'✏️ Edit Product':'➕ Add Product';
+    const map={pn:'name',pc:'category',pb:'brand',pmodel:'model',psku:'sku',pprice:'price',ppurchase:'purchase_price',pstock:'stock_quantity',pimage:'image_url',pdesc:'description'};
+    Object.entries(map).forEach(([id,key])=>{const el=q(id);if(el)el.value=p?.[key]??'';});
+    imageBox();setImage(p?.image_url||'');if(q('pmsg'))q('pmsg').innerHTML='';q('pm')?.classList.add('show');
+  };
+  window.closeProduct=function(){q('pm')?.classList.remove('show');editingId=null;};
+
+  window.saveProduct=async function(){
+    const name=q('pn')?.value.trim(),price=Number(q('pprice')?.value);
+    if(!name)return notify('Product name is required.');if(!Number.isFinite(price)||price<0)return notify('Enter a valid selling price.');
+    const data={name,category:q('pc')?.value||'New Mobile',brand:q('pb')?.value.trim()||null,model:q('pmodel')?.value.trim()||null,sku:q('psku')?.value.trim()||null,price,purchase_price:Number(q('ppurchase')?.value)||0,stock_quantity:Number(q('pstock')?.value)||0,image_url:q('pimage')?.value.trim()||null,description:q('pdesc')?.value.trim()||null,updated_at:new Date().toISOString()};
+    const r=editingId?await sb.from('products').update(data).eq('id',editingId):await sb.from('products').insert(data);
+    if(r.error){if(r.error.code==='23505')return notify('This SKU/barcode already exists.');return notify(r.error.message||'Could not save product.');}
+    notify(editingId?'Product updated successfully.':'Product saved successfully.',true);
+    await window.loadProducts();if(typeof loadStock==='function')await loadStock();if(typeof loadDashboard==='function')await loadDashboard();setTimeout(window.closeProduct,500);
+  };
+
+  window.renderProducts=function(){
+    const body=q('productsRows');if(!body)return;const term=(q('search')?.value||'').toLowerCase().trim();
+    const list=(products||[]).filter(p=>!term||[p.name,p.brand,p.model,p.sku,p.category].some(v=>String(v??'').toLowerCase().includes(term)));
+    if(!list.length){body.innerHTML='<tr><td colspan="6" class="muted">No products found.</td></tr>';return;}
+    body.innerHTML=list.map((p,i)=>'<tr><td><div style="display:flex;align-items:center;gap:9px">'+(p.image_url?'<img class="product-thumb" src="'+esc(p.image_url)+'" style="width:52px;height:52px;object-fit:cover;border-radius:9px;border:1px solid #ddd" onerror="this.style.display=\'none\'">':'<div style="width:52px;height:52px;display:grid;place-items:center;border:1px solid #ddd;border-radius:9px">📦</div>')+'<div><b>'+esc(p.name)+'</b><br><small class="muted">'+esc((p.brand||'')+' '+(p.model||''))+'</small></div></div></td><td>'+esc(p.category||'')+'</td><td>'+esc(p.sku||'—')+'</td><td>₹'+esc(p.price)+'</td><td>'+esc(p.stock_quantity??p.stock??0)+'</td><td><div class="actions"><button class="btn" style="background:#2563eb" data-edit-index="'+i+'">✏️ Edit</button><button class="btn danger" data-delete-index="'+i+'">🗑️ Delete</button></div></td></tr>').join('');
+    body.querySelectorAll('[data-edit-index]').forEach(b=>b.onclick=()=>window.openProduct(list[Number(b.dataset.editIndex)]));
+    body.querySelectorAll('[data-delete-index]').forEach(b=>b.onclick=()=>window.deleteProduct(list[Number(b.dataset.deleteIndex)].id));
+  };
+  window.loadProducts=async function(){
+    const r=await sb.from('products').select('*').order('created_at',{ascending:false});
+    if(r.error){products=[];if(q('productsRows'))q('productsRows').innerHTML='<tr><td colspan="6">'+esc(r.error.message)+'</td></tr>';return;}
+    products=r.data||[];window.renderProducts();
+  };
+  window.deleteProduct=async function(id){if(!id)return;if(!confirm('Delete this product?'))return;const r=await sb.from('products').delete().eq('id',id);if(r.error){alert(r.error.message);return;}await window.loadProducts();if(typeof loadStock==='function')await loadStock();if(typeof loadDashboard==='function')await loadDashboard();};
+
+  function boot(){imageBox();if(q('productsRows')&&!q('productsRows').dataset.fixDelegated){q('productsRows').dataset.fixDelegated='1';}if(typeof window.loadProducts==='function'&&q('products')?.classList.contains('active'))window.loadProducts();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,100));else setTimeout(boot,100);
+  setTimeout(boot,700);setTimeout(boot,1600);
+})();
