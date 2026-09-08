@@ -1,1 +1,29 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RepairMitra Admin</title><meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate,max-age=0"></head><body><h2>🛠️ RepairMitra Admin</h2><p id="status">Loading Admin Control Center…</p><script>(async()=>{try{const r=await fetch('../admin-unified.html?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('Admin panel could not be loaded');let h=await r.text();const extra='<style>.product-thumb{width:52px;height:52px;object-fit:cover;border-radius:9px;border:1px solid #ddd;background:#f8fafc}.edit-btn{background:#2563eb!important;color:#fff!important}</style><script src="../admin-product-management-fix.js?v=20260908-1"></script>';h=h.replace(/<\/body>/i,extra+'</body>');document.open();document.write(h);document.close()}catch(e){document.getElementById('status').textContent='Unable to open Admin Panel: '+e.message}})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate,max-age=0">
+<title>RepairMitra Admin</title>
+</head>
+<body>
+<h2>🛠️ RepairMitra Admin</h2>
+<p id="status">Loading Admin Control Center…</p>
+<script>
+(async function(){
+  try {
+    const r=await fetch('../admin-unified.html?v='+Date.now(),{cache:'no-store'});
+    if(!r.ok) throw new Error('Admin panel could not be loaded');
+    let html=await r.text();
+    html=html.replace(/<\/body>/i,'<script src="../admin-product-fix.js?v=20260908-2"><\/script></body>');
+    document.open();
+    document.write(html);
+    document.close();
+  } catch(e) {
+    const s=document.getElementById('status');
+    if(s) s.textContent='Unable to open Admin Panel: '+(e.message||e);
+  }
+})();
+</script>
+</body>
+</html>
