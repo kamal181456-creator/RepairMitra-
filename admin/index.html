@@ -11,13 +11,12 @@
 <iframe id="adminFrame" title="RepairMitra Admin"></iframe>
 <script>
 const frame=document.getElementById('adminFrame');
-frame.src='../admin-unified.html?v=20260908-5';
+frame.src='../admin-unified.html?v=20260908-6';
 function installSizeUI(){
   const d=frame.contentDocument;
   if(!d)return;
   const cat=d.getElementById('pc');
-  if(!cat)return;
-  if(!d.getElementById('footwearSizesBox')){
+  if(cat&&!d.getElementById('footwearSizesBox')){
     const box=d.createElement('div');
     box.id='footwearSizesBox';
     box.style.cssText='display:none;margin:10px 0;padding:14px;border:2px solid #2563eb;border-radius:12px;background:#eff6ff';
@@ -26,6 +25,7 @@ function installSizeUI(){
     cat.addEventListener('change',syncSizeUI);
   }
   syncSizeUI();
+  installAddProductButton();
 }
 function syncSizeUI(){
   const d=frame.contentDocument,cat=d&&d.getElementById('pc'),box=d&&d.getElementById('footwearSizesBox');
@@ -33,7 +33,29 @@ function syncSizeUI(){
   const v=(cat.value||'').toLowerCase().replace(/\s+/g,'');
   box.style.display=/(footwear|footware|shoes?|sandal|slipper|chappal)/.test(v)?'block':'none';
 }
-frame.addEventListener('load',()=>{installSizeUI();setTimeout(installSizeUI,300);setTimeout(installSizeUI,1000);setTimeout(installSizeUI,2500);});
+function installAddProductButton(){
+  const d=frame.contentDocument;
+  if(!d||!d.getElementById('app'))return;
+  const app=d.getElementById('app');
+  if(getComputedStyle(app).display==='none')return;
+  if(d.getElementById('adminAddProductQuick'))return;
+  const heads=d.querySelectorAll('.main .sectionHead');
+  if(!heads.length)return;
+  const head=heads[0];
+  const btn=d.createElement('button');
+  btn.id='adminAddProductQuick';
+  btn.className='btn';
+  btn.type='button';
+  btn.textContent='➕ Add Product';
+  btn.style.marginLeft='8px';
+  btn.addEventListener('click',()=>{
+    if(typeof frame.contentWindow.openProduct==='function') frame.contentWindow.openProduct();
+  });
+  head.appendChild(btn);
+}
+function install(){installSizeUI();installAddProductButton();}
+frame.addEventListener('load',()=>{install();setTimeout(install,300);setTimeout(install,1000);setTimeout(install,2500);setTimeout(install,5000);});
+setInterval(installAddProductButton,1000);
 </script>
 </body>
 </html>
