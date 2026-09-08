@@ -18,7 +18,7 @@ body{overflow:hidden}
 <script>
 const frame=document.getElementById('adminFrame');
 const quickAdd=document.getElementById('dashboardAddProduct');
-frame.src='../admin-unified.html?v=20260908-8';
+frame.src='../admin-unified.html?v=20260908-9';
 let fixLoaded=false;
 
 function loadProductFix(){
@@ -28,7 +28,8 @@ function loadProductFix(){
   if(d.getElementById('repairMitraProductFix')){fixLoaded=true;return;}
   const s=d.createElement('script');
   s.id='repairMitraProductFix';
-  s.src='product-management-fix.js?v=20260908-8';
+  // IMPORTANT: resolve from the iframe document, not the /admin/ wrapper.
+  s.src='../admin/product-management-fix.js?v=20260908-9';
   s.onload=()=>{fixLoaded=true;};
   s.onerror=()=>{fixLoaded=false;};
   d.body.appendChild(s);
@@ -46,12 +47,13 @@ function openAddProductFromDashboard(){
   if(!w)return;
   try{
     if(typeof w.tab==='function')w.tab('products');
-    setTimeout(()=>{if(typeof w.openProduct==='function')w.openProduct();},100);
+    setTimeout(()=>{if(typeof w.openProduct==='function')w.openProduct();},150);
   }catch(e){console.error(e)}
 }
 quickAdd.addEventListener('click',openAddProductFromDashboard);
 function install(){loadProductFix();updateQuickButton();}
 frame.addEventListener('load',()=>{
+  fixLoaded=false;
   install();
   setTimeout(install,300);
   setTimeout(install,1000);
