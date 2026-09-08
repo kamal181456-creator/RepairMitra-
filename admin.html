@@ -1,1 +1,31 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate,max-age=0"><meta http-equiv="Pragma" content="no-cache"><title>RepairMitra Admin</title></head><body><script>location.replace('./RepairMitra_admin_panel.html?v='+Date.now());</script><p style="font-family:Arial;text-align:center;padding:40px">Opening RepairMitra Admin…</p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate,max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<title>RepairMitra Admin</title>
+<style>body{font-family:Arial,sans-serif;margin:0;background:#f5f7fb;color:#172033;min-height:100vh;display:grid;place-items:center}.box{background:#fff;width:min(430px,90%);padding:28px;border-radius:20px;box-shadow:0 10px 35px #0001}h1{text-align:center}input{width:100%;box-sizing:border-box;padding:13px;margin:7px 0;border:1px solid #ccd5e2;border-radius:11px}.btn{width:100%;padding:13px;border:0;border-radius:11px;background:#1769e0;color:#fff;font-weight:700;cursor:pointer;margin-top:8px}.link{display:block;text-align:center;margin-top:15px;color:#1769e0;text-decoration:none}.msg{padding:10px;border-radius:10px;margin-top:10px;display:none}.err{display:block;background:#fde8e8;color:#a12626}.ok{display:block;background:#e7f7ed;color:#146c3b}</style>
+</head>
+<body>
+<div class="box">
+<h1>🛠️ RepairMitra Admin</h1>
+<p style="text-align:center;color:#667085">Secure Admin Login</p>
+<input id="email" type="email" autocomplete="username" placeholder="Admin Email">
+<input id="password" type="password" autocomplete="current-password" placeholder="Admin Password">
+<button id="loginBtn" class="btn">Sign In</button>
+<a class="link" href="./forgot-password.html?admin=1">🔐 Forgot Password?</a>
+<div id="msg" class="msg"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://rqnmshqrwntxilwnhqwa.supabase.co';
+const SUPABASE_KEY='sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const msg=document.getElementById('msg'),btn=document.getElementById('loginBtn');
+function show(text,ok=false){msg.textContent=text;msg.className='msg '+(ok?'ok':'err')}
+async function login(){const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!email||!password){show('Enter admin email and password.');return}btn.disabled=true;btn.textContent='Signing In...';try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;if(!data?.session)throw new Error('Login succeeded but no session was created.');show('Login successful. Opening Admin Panel...',true);location.replace('./admin-unified.html?v='+Date.now())}catch(e){show(e?.message||'Login failed. Please check your Supabase configuration.');btn.disabled=false;btn.textContent='Sign In'}}
+btn.addEventListener('click',login);document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+</script>
+</body></html>
