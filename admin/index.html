@@ -15,7 +15,8 @@
     const r=await fetch('../admin-unified.html?v='+Date.now(),{cache:'no-store'});
     if(!r.ok) throw new Error('Admin panel could not be loaded');
     let html=await r.text();
-    html=html.replace(/<\/body>/i,'<script src="../admin-product-fix.js?v=20260908-2"><\/script></body>');
+    const fix='<script src="../admin/product-management-fix.js?v=20260908-3"><\/script><script>(function(){function add(){var d=document.getElementById("dashboard"),a=d&&d.querySelector(".actions");if(!a||document.getElementById("mobileProductBtn"))return;var b=document.createElement("button");b.id="mobileProductBtn";b.className="btn success";b.textContent="📦 Product Management";b.onclick=function(){var n=document.querySelector("#nav button:nth-child(2)");if(typeof window.tab==="function")window.tab("products",n)};a.insertBefore(b,a.firstChild)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(add,300)});else setTimeout(add,300);setTimeout(add,1200);})();<\/script></body>';
+    html=html.replace(/<\/body>/i,fix);
     document.open();
     document.write(html);
     document.close();
