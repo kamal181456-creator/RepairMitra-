@@ -9,7 +9,6 @@
 html,body,iframe{margin:0;width:100%;height:100%;border:0}
 body{overflow:hidden}
 #dashboardAddProduct{display:none;position:fixed;right:22px;top:18px;z-index:99999;border:0;border-radius:10px;padding:11px 16px;background:#2563eb;color:#fff;font:700 14px Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.22);cursor:pointer}
-#dashboardAddProduct:hover{filter:brightness(.95)}
 @media(max-width:600px){#dashboardAddProduct{right:12px;top:12px;padding:10px 13px;font-size:13px}}
 </style>
 </head>
@@ -19,49 +18,39 @@ body{overflow:hidden}
 <script>
 const frame=document.getElementById('adminFrame');
 const quickAdd=document.getElementById('dashboardAddProduct');
-frame.src='../admin-unified.html?v=20260908-7';
+frame.src='../admin-unified.html?v=20260908-8';
+let fixLoaded=false;
 
-function installSizeUI(){
+function loadProductFix(){
+  if(fixLoaded)return;
   const d=frame.contentDocument;
-  if(!d)return;
-  const cat=d.getElementById('pc');
-  if(cat&&!d.getElementById('footwearSizesBox')){
-    const box=d.createElement('div');
-    box.id='footwearSizesBox';
-    box.style.cssText='display:none;margin:10px 0;padding:14px;border:2px solid #2563eb;border-radius:12px;background:#eff6ff';
-    box.innerHTML='<div style="font-weight:700;font-size:16px;margin-bottom:10px">👟 Select Footwear Sizes</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px"><label><input type="checkbox" value="5"> 5</label><label><input type="checkbox" value="6"> 6</label><label><input type="checkbox" value="7"> 7</label><label><input type="checkbox" value="8"> 8</label><label><input type="checkbox" value="9"> 9</label><label><input type="checkbox" value="10"> 10</label><label><input type="checkbox" value="11"> 11</label><label><input type="checkbox" value="12"> 12</label></div><small style="display:block;margin-top:9px">Select all sizes available for this product.</small>';
-    cat.parentNode.insertBefore(box,cat.nextSibling);
-    cat.addEventListener('change',syncSizeUI);
-  }
-  syncSizeUI();
+  if(!d||!d.body)return;
+  if(d.getElementById('repairMitraProductFix')){fixLoaded=true;return;}
+  const s=d.createElement('script');
+  s.id='repairMitraProductFix';
+  s.src='product-management-fix.js?v=20260908-8';
+  s.onload=()=>{fixLoaded=true;};
+  s.onerror=()=>{fixLoaded=false;};
+  d.body.appendChild(s);
 }
-function syncSizeUI(){
-  const d=frame.contentDocument,cat=d&&d.getElementById('pc'),box=d&&d.getElementById('footwearSizesBox');
-  if(!cat||!box)return;
-  const v=(cat.value||'').toLowerCase().replace(/\s+/g,'');
-  box.style.display=/(footwear|footware|shoes?|sandal|slipper|chappal)/.test(v)?'block':'none';
-}
+
 function adminReady(){
   const d=frame.contentDocument;
   if(!d)return false;
   const app=d.getElementById('app');
   return !!app&&getComputedStyle(app).display!=='none';
 }
-function updateQuickButton(){
-  quickAdd.style.display=adminReady()?'block':'none';
-}
+function updateQuickButton(){quickAdd.style.display=adminReady()?'block':'none';}
 function openAddProductFromDashboard(){
   const w=frame.contentWindow;
   if(!w)return;
   try{
     if(typeof w.tab==='function')w.tab('products');
-    setTimeout(()=>{
-      if(typeof w.openProduct==='function')w.openProduct();
-    },80);
+    setTimeout(()=>{if(typeof w.openProduct==='function')w.openProduct();},100);
   }catch(e){console.error(e)}
 }
 quickAdd.addEventListener('click',openAddProductFromDashboard);
-function install(){installSizeUI();updateQuickButton();}
+function install(){loadProductFix();updateQuickButton();}
 frame.addEventListener('load',()=>{
   install();
   setTimeout(install,300);
@@ -69,7 +58,7 @@ frame.addEventListener('load',()=>{
   setTimeout(install,2500);
   setTimeout(install,5000);
 });
-setInterval(()=>{installSizeUI();updateQuickButton();},1000);
+setInterval(install,1000);
 </script>
 </body>
 </html>
