@@ -16,29 +16,27 @@
 (function(){
 'use strict';
 const frame=document.getElementById('adminFrame'),quickAdd=document.getElementById('dashboardAddProduct'),vipButton=document.getElementById('vipButton');
-const V='20260909-5';
-let injected=false;
+const V='20260909-6';
 frame.src='../admin-unified.html?v='+V;
 function ready(){try{const d=frame.contentDocument,a=d&&d.getElementById('app');return !!a&&getComputedStyle(a).display!=='none'}catch(e){return false}}
 function buttons(){const ok=ready();quickAdd.style.display=ok?'block':'none';vipButton.style.display=ok?'block':'none'}
-function injectOnce(){
- if(injected)return;
- try{
-  const d=frame.contentDocument;
-  if(!d||!d.body)return;
-  if(d.getElementById('repairMitraProductFix')){injected=true;buttons();return}
-  const s=d.createElement('script');
-  s.id='repairMitraProductFix';
-  s.src='admin/product-management-fix.js?v='+V;
-  s.onload=function(){injected=true;buttons()};
-  s.onerror=function(){injected=false;console.error('Product Management fix failed to load')};
-  d.body.appendChild(s);
- }catch(e){console.error(e)}
-}
-frame.addEventListener('load',function(){injectOnce();setTimeout(buttons,250)});
+frame.addEventListener('load',function(){
+  setTimeout(function(){
+    try{
+      const d=frame.contentDocument;
+      if(!d||!d.body)return;
+      if(d.getElementById('repairMitraProductFix')){buttons();return}
+      const s=d.createElement('script');
+      s.id='repairMitraProductFix';
+      s.src='admin/product-management-fix.js?v='+V;
+      s.onload=buttons;
+      d.body.appendChild(s);
+    }catch(e){console.error(e)}
+  },1200);
+  setTimeout(buttons,1400);
+});
 quickAdd.onclick=function(){try{const w=frame.contentWindow;if(typeof w.tab==='function')w.tab('products');setTimeout(function(){if(typeof w.openProduct==='function')w.openProduct()},200)}catch(e){}};
 vipButton.onclick=function(){location.href='../vip-numbers.html'};
-setInterval(buttons,1500);
 })();
 </script>
 </body>
