@@ -6,70 +6,23 @@
 <meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate,max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <title>RepairMitra Admin</title>
-<style>
-html,body,iframe{margin:0;width:100%;height:100%;border:0}
-body{overflow:hidden}
-#dashboardAddProduct,#vipButton{display:none;position:fixed;right:22px;z-index:99999;border:0;border-radius:10px;padding:11px 16px;color:#fff;font:700 14px Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.22);cursor:pointer}
-#dashboardAddProduct{top:18px;background:#2563eb}
-#vipButton{top:68px;background:#d79d17;color:#111}
-@media(max-width:600px){#dashboardAddProduct,#vipButton{right:12px;padding:10px 13px;font-size:13px}#vipButton{top:62px}}
-</style>
+<style>html,body,iframe{margin:0;width:100%;height:100%;border:0}body{overflow:hidden}#dashboardAddProduct,#vipButton{display:none;position:fixed;right:22px;z-index:99999;border:0;border-radius:10px;padding:11px 16px;color:#fff;font:700 14px Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.22);cursor:pointer}#dashboardAddProduct{top:18px;background:#2563eb}#vipButton{top:68px;background:#d79d17;color:#111}@media(max-width:600px){#dashboardAddProduct,#vipButton{right:12px;padding:10px 13px;font-size:13px}#vipButton{top:62px}}</style>
 </head>
 <body>
 <iframe id="adminFrame" title="RepairMitra Admin"></iframe>
 <button id="dashboardAddProduct" type="button">➕ Add Product</button>
 <button id="vipButton" type="button">⭐ VIP Numbers</button>
 <script>
-(function(){
-'use strict';
-const frame=document.getElementById('adminFrame');
-const quickAdd=document.getElementById('dashboardAddProduct');
-const vipButton=document.getElementById('vipButton');
-const V='20260909-3';
-let timers=[];
-
+(function(){'use strict';
+const frame=document.getElementById('adminFrame'),quickAdd=document.getElementById('dashboardAddProduct'),vipButton=document.getElementById('vipButton');
+const V='20260909-4';
 frame.src='../admin-unified.html?v='+V;
-
-function ready(){
-  try{
-    const d=frame.contentDocument;
-    const app=d&&d.getElementById('app');
-    return !!app&&getComputedStyle(app).display!=='none';
-  }catch(e){return false;}
-}
-function buttons(){
-  const ok=ready();
-  quickAdd.style.display=ok?'block':'none';
-  vipButton.style.display=ok?'block':'none';
-}
-function inject(){
-  try{
-    const d=frame.contentDocument;
-    if(!d||!d.body)return;
-    const old=d.getElementById('repairMitraProductFix');
-    if(old){buttons();return;}
-    const s=d.createElement('script');
-    s.id='repairMitraProductFix';
-    s.src='admin/product-management-fix.js?v='+V;
-    s.onload=buttons;
-    d.body.appendChild(s);
-  }catch(e){}
-}
-function install(){inject();buttons();}
-function clearTimers(){timers.forEach(clearTimeout);timers=[];}
-frame.addEventListener('load',function(){
-  clearTimers();
-  install();
-  [200,600,1200,2500].forEach(function(ms){timers.push(setTimeout(install,ms));});
-});
-quickAdd.onclick=function(){
-  try{
-    const w=frame.contentWindow;
-    if(typeof w.tab==='function')w.tab('products');
-    setTimeout(function(){if(typeof w.openProduct==='function')w.openProduct();},200);
-  }catch(e){}
-};
-vipButton.onclick=function(){location.href='../vip-numbers.html';};
+function ready(){try{const d=frame.contentDocument,a=d&&d.getElementById('app');return !!a&&getComputedStyle(a).display!=='none'}catch(e){return false}}
+function buttons(){const ok=ready();quickAdd.style.display=ok?'block':'none';vipButton.style.display=ok?'block':'none'}
+function inject(){try{const d=frame.contentDocument;if(!d||!d.body)return;if(d.getElementById('repairMitraProductFix')){buttons();return}const s=d.createElement('script');s.id='repairMitraProductFix';s.src='admin/product-management-fix.js?v='+V;s.onload=buttons;d.body.appendChild(s)}catch(e){}}
+frame.addEventListener('load',function(){inject();buttons();setTimeout(inject,300);setTimeout(inject,900);setTimeout(inject,1800)});
+quickAdd.onclick=function(){try{const w=frame.contentWindow;if(typeof w.tab==='function')w.tab('products');setTimeout(function(){if(typeof w.openProduct==='function')w.openProduct()},200)}catch(e){}};
+vipButton.onclick=function(){location.href='../vip-numbers.html'};
 })();
 </script>
 </body>
