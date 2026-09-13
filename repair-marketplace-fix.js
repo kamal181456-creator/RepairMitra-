@@ -1,107 +1,24 @@
-/* RepairMitra marketplace repair flow hardening/fixes */
+/* RepairMitra repair marketplace compatibility layer. Keeps existing UI/features and adds the complete quote flow. */
 (function(){
-  const SB = window.sb;
-  if (!SB) return;
-  const $ = id => document.getElementById(id);
-  const esc2 = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-  window.openQuotes = async function(id){
-    if (!window.user) return;
-    window.currentComplaint = String(id);
-    if (typeof window.page === 'function') window.page('quotes');
-    if ($('quoteHint')) $('quoteHint').textContent='Loading vendor quotations…';
-    if ($('quoteList')) $('quoteList').innerHTML='<div class="item"><p class="muted">Please wait…</p></div>';
-    const r = await SB.from('repair_quotes').select('*').eq('complaint_id',String(id)).order('quote_amount',{ascending:true});
-    if (r.error){ if($('quoteList')) $('quoteList').innerHTML='<p class="muted">'+esc2(r.error.message)+'</p>'; return; }
-    const quotes = r.data || [];
-    if (!quotes.length){
-      if($('quoteHint')) $('quoteHint').textContent='Your complaint has been sent to approved vendors. Quotes will appear here as vendors respond.';
-      if($('quoteList')) $('quoteList').innerHTML='<div class="item"><h3>⏳ Waiting for quotations</h3><p class="muted">No vendor has submitted a quotation yet.</p></div>';
-      return;
-    }
-    const ids=[...new Set(quotes.map(q=>q.vendor_id).filter(Boolean))];
-    let shops=[];
-    if(ids.length){
-      const s=await SB.from('vendor_shops').select('vendor_id,shop_name,owner_name,city,area,pincode,services,is_approved,is_active').in('vendor_id',ids);
-      if(!s.error) shops=s.data||[];
-    }
-    const shopMap=Object.fromEntries(shops.map(x=>[x.vendor_id,x]));
-    if($('quoteHint')) $('quoteHint').textContent=`${quotes.length} quotation${quotes.length===1?'':'s'} received. Compare price, time and service details, then choose one vendor.`;
-    if($('quoteList')) $('quoteList').innerHTML=quotes.map((q,i)=>{
-      const s=shopMap[q.vendor_id]||{};
-      const shop=s.shop_name||('Verified Vendor '+(i+1));
-      const services=Array.isArray(s.services)?s.services.join(', '):(s.services||'Mobile repair');
-      return `<div class="item" style="border:2px solid ${i===0?'#2563eb':'#e2e8f0'}">
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-          <div><h3 style="margin:0 0 5px">👨‍🔧 ${esc2(shop)}</h3><p class="muted" style="margin:0">${esc2(s.area||s.city||'Local repair vendor')}</p></div>
-          <div class="price">₹${esc2(q.quote_amount)}</div>
-        </div>
-        <p><b>Estimated time:</b> ${esc2(q.estimated_time||'Not specified')}</p>
-        <p><b>Problem/Service:</b> ${esc2(q.service_details||'Repair as described in complaint')}</p>
-        <p><b>Parts:</b> ${esc2(q.parts_details||'Not specified')}</p>
-        <p><b>Vendor message:</b> ${esc2(q.vendor_note||'No additional message')}</p>
-        <p class="muted"><b>Services:</b> ${esc2(services)}</p>
-        <div class="actions"><button class="btn success" onclick="selectVendor('${esc2(q.id)}','${esc2(q.vendor_id)}')">✅ Choose This Vendor</button><button class="btn secondary" onclick="openChat('${esc2(q.vendor_id)}')">💬 Message Vendor</button></div>
-      </div>`;
-    }).join('');
-  };
-
-  window.selectVendor = async function(quoteId,vendorId){
-    if(!window.user || !window.currentComplaint) return;
-    if(!confirm('Choose this vendor and quotation?')) return;
-    const check=await SB.from('complaints').select('id,customer_id,user_id').eq('id',String(window.currentComplaint)).maybeSingle();
-    if(check.error || !check.data || (check.data.customer_id!==window.user.id && check.data.user_id!==window.user.id)) return alert('You can only select a vendor for your own complaint.');
-    const q=await SB.from('repair_quotes').select('id,vendor_id,quote_amount').eq('id',String(quoteId)).eq('complaint_id',String(window.currentComplaint)).maybeSingle();
-    if(q.error || !q.data || q.data.vendor_id!==vendorId) return alert('Quotation not found. Please refresh and try again.');
-    const up=await SB.from('complaints').update({selected_vendor_id:vendorId,selected_quote_id:quoteId,marketplace_status:'vendor_selected',quotation_status:'selected',repair_charge:q.data.quote_amount}).eq('id',String(window.currentComplaint)).eq('customer_id',window.user.id);
-    if(up.error) return alert(up.error.message);
-    const order=await SB.from('repair_orders').upsert({complaint_id:String(window.currentComplaint),customer_id:window.user.id,vendor_id:vendorId,quote_id:quoteId,status:'vendor_selected',agreed_amount:q.data.quote_amount,updated_at:new Date().toISOString()},{onConflict:'complaint_id'});
-    if(order.error) return alert('Vendor selected, but order could not be created: '+order.error.message);
-    alert('Vendor selected successfully.');
-    if(typeof window.loadRepairs==='function') await window.loadRepairs();
-    if(typeof window.page==='function') window.page('repairs');
-  };
-
-  window.loadRepairs = async function(){
-    if(!window.user || !window.$) return;
-    const r=await SB.from('complaints').select('id,brand,model,mobile_model,problem,issue,description,address,status,marketplace_status,selected_vendor_id,created_at').order('created_at',{ascending:false});
-    if(r.error){if($('list')) $('list').innerHTML='<p class="muted">'+esc2(r.error.message)+'</p>';return;}
-    const rows=r.data||[];
-    if(!rows.length){$('list').innerHTML='<p class="muted">No repair requests available.</p>';return;}
-    const ids=rows.map(x=>String(x.id));
-    const qr=ids.length?await SB.from('repair_quotes').select('*').eq('vendor_id',window.user.id).in('complaint_id',ids):{data:[]};
-    const own=Object.fromEntries((qr.data||[]).map(q=>[String(q.complaint_id),q]));
-    $('list').innerHTML=rows.map(c=>{
-      const q=own[String(c.id)];
-      const selected=c.selected_vendor_id;
-      const selectedByOther=!!selected && selected!==window.user.id;
-      const title=c.mobile_model || [c.brand,c.model].filter(Boolean).join(' ') || 'Mobile';
-      return `<div class="item"><h3>📱 ${esc2(title)}</h3>
-        <p><b>Problem:</b> ${esc2(c.problem||c.issue||'-')}</p>
-        <p><b>Details:</b> ${esc2(c.description||'-')}</p>
-        <p><b>Address:</b> ${esc2(c.address||'-')}</p>
-        <p><b>Status:</b> ${esc2(c.marketplace_status||c.status||'New')}</p>
-        ${selectedByOther?'<p class="muted">This customer has already selected another vendor.</p>':''}
-        ${q?`<div style="background:#f0fdf4;border-radius:12px;padding:12px"><b>✅ Your quotation</b><br>₹${esc2(q.quote_amount)} • ${esc2(q.estimated_time||'Time not specified')}<br>${esc2(q.vendor_note||q.service_details||'')}</div>`:`<div class="quote-box" data-id="${esc2(c.id)}">
-          <input id="amt_${esc2(c.id)}" type="number" min="1" placeholder="Your Quote Amount ₹">
-          <input id="time_${esc2(c.id)}" placeholder="Estimated repair time (e.g. 2 hours)">
-          <input id="parts_${esc2(c.id)}" placeholder="Parts / spare parts details">
-          <textarea id="service_${esc2(c.id)}" placeholder="What repair/service will you do?"></textarea>
-          <textarea id="note_${esc2(c.id)}" placeholder="Message to customer"></textarea>
-          <button class="btn success" ${selectedByOther?'disabled':''} onclick="quote('${esc2(c.id)}')">💰 Send Quotation</button>
-        </div>`}
-      </div>`;
-    }).join('');
-  };
-
-  window.quote = async function(id){
-    if(!window.user) return;
-    const amount=Number($('amt_'+id)?.value);
-    if(!Number.isFinite(amount)||amount<=0) return alert('Enter a valid quotation amount.');
-    const payload={complaint_id:String(id),vendor_id:window.user.id,quote_amount:amount,estimated_time:$('time_'+id)?.value.trim()||'',parts_details:$('parts_'+id)?.value.trim()||'',service_details:$('service_'+id)?.value.trim()||'',vendor_note:$('note_'+id)?.value.trim()||'',status:'submitted',updated_at:new Date().toISOString()};
-    const r=await SB.from('repair_quotes').upsert(payload,{onConflict:'complaint_id,vendor_id'});
-    if(r.error) return alert('Quotation error: '+r.error.message);
-    alert('Quotation sent to customer successfully.');
-    await window.loadRepairs();
-  };
+'use strict';
+const SB=window.sb||window.supabase.createClient('https://rqnmshqrwntxilwnhqwa.supabase.co','sb_publishable_irYxUMcbJIIKVkCtyxjp-w_piB5mu7v');
+window.sb=SB;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let currentComplaint=null,currentVendor=null;
+function setUser(u){window.user=u;window.__repairUser=u;}
+function page2(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));if($(id))$(id).classList.add('active');if(id==='repairs')window.loadRepairs();}
+window.page=page2;
+window.login=async function(){const r=await SB.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error){if(window.msg)msg('loginMsg',r.error.message);else alert(r.error.message);return}setUser(r.data.user);openApp(r.data.user)};
+window.signup=async function(){const email=$('signupEmail').value.trim(),password=$('signupPassword').value;if(!email||password.length<6){if(window.msg)msg('signupMsg','Enter a valid email and password of at least 6 characters.');return}const r=await SB.auth.signUp({email,password,options:{data:{full_name:$('name').value.trim(),phone:$('phone').value.trim(),role:'customer'}}});if(r.error)return msg('signupMsg',r.error.message);msg('signupMsg',r.data.session?'Account created successfully.':'Account created. Check your email for confirmation.',true);if(r.data.session){setUser(r.data.user);openApp(r.data.user)}};
+function openApp(u){setUser(u);if($('auth'))$('auth').style.display='none';if($('app'))$('app').style.display='block';if($('logoutBtn'))$('logoutBtn').style.display='inline-block';if($('accountEmail'))$('accountEmail').textContent=u.email||'';if($('accountId'))$('accountId').textContent=u.id||'';window.loadRepairs()}
+window.logout=async function(){await SB.auth.signOut();location.reload()};
+window.submitRepair=async function(){const u=window.user;if(!u)return alert('Please sign in first.');const brand=$('brand').value.trim(),model=$('model').value.trim(),problem=$('problem').value.trim();if(!brand||!model||!problem)return msg('repairMsg','Brand, model and problem are required.');const lat=parseFloat($('lat').value),lon=parseFloat($('lon').value);const p={user_id:u.id,customer_id:u.id,brand,model,mobile_model:brand+' '+model,problem,issue:problem,description:$('description').value.trim(),address:$('address').value.trim(),marketplace_status:'complaint_created',quotation_status:'pending',status:'Pending',created_at:new Date().toISOString(),updated_at:new Date().toISOString()};if(Number.isFinite(lat))p.latitude=lat;if(Number.isFinite(lon))p.longitude=lon;const r=await SB.from('complaints').insert(p);if(r.error)return msg('repairMsg',r.error.message);msg('repairMsg','Repair request submitted. Approved vendors can now see it and send quotations.',true);['brand','model','problem','description','address','city','pin','lat','lon'].forEach(x=>{if($(x))$(x).value=''});await window.loadRepairs();page2('repairs')};
+window.loadRepairs=async function(){const u=window.user;if(!u||!$('repairList'))return;const r=await SB.from('complaints').select('id,brand,model,mobile_model,problem,issue,marketplace_status,status,created_at').eq('customer_id',u.id).order('created_at',{ascending:false});if(r.error){$('repairList').innerHTML='<p class="muted">'+esc(r.error.message)+'</p>';return}const rows=r.data||[];$('repairList').innerHTML=rows.length?rows.map(c=>`<div class="item"><h3>📱 ${esc(c.mobile_model||[c.brand,c.model].filter(Boolean).join(' ')||'Mobile')}</h3><p><b>Problem:</b> ${esc(c.problem||c.issue||'-')}</p><p><b>Status:</b> ${esc(c.marketplace_status||c.status||'New')}</p><p class="muted">Repair ID: ${esc(c.id)}</p><div class="actions"><button class="btn" onclick="openQuotes('${esc(c.id)}')">💰 View All Vendor Quotes</button></div></div>`).join(''):'<p class="muted">No repair requests yet.</p>'};
+window.openQuotes=async function(id){const u=window.user;if(!u)return;currentComplaint=String(id);page2('quotes');if($('quoteHint'))$('quoteHint').textContent='Loading vendor quotations…';if($('quoteList'))$('quoteList').innerHTML='<div class="item"><p class="muted">Please wait…</p></div>';const own=await SB.from('complaints').select('id').eq('id',String(id)).eq('customer_id',u.id).maybeSingle();if(own.error||!own.data)return $('quoteList').innerHTML='<p class="muted">Complaint not found.</p>';const r=await SB.from('repair_quotes').select('*').eq('complaint_id',String(id)).order('quote_amount',{ascending:true});if(r.error)return $('quoteList').innerHTML='<p class="muted">'+esc(r.error.message)+'</p>';const qs=r.data||[];if(!qs.length){$('quoteHint').textContent='Your complaint has been sent to approved vendors.';return $('quoteList').innerHTML='<div class="item"><h3>⏳ Waiting for quotations</h3><p class="muted">No vendor has submitted a quotation yet.</p></div>'}const ids=[...new Set(qs.map(q=>q.vendor_id).filter(Boolean))];let shops=[];if(ids.length){const s=await SB.from('vendor_shops').select('vendor_id,shop_name,owner_name,city,area,services').in('vendor_id',ids);if(!s.error)shops=s.data||[]}const map=Object.fromEntries(shops.map(x=>[x.vendor_id,x]));$('quoteHint').textContent=`${qs.length} quotation${qs.length===1?'':'s'} received. Compare and choose your preferred vendor.`;$('quoteList').innerHTML=qs.map((q,i)=>{const s=map[q.vendor_id]||{};return `<div class="item" style="border:2px solid ${i===0?'#2563eb':'#e2e8f0'}"><div style="display:flex;justify-content:space-between;gap:10px"><div><h3>👨‍🔧 ${esc(s.shop_name||'Verified Repair Vendor')}</h3><p class="muted">${esc(s.area||s.city||'Local vendor')}</p></div><div class="price">₹${esc(q.quote_amount)}</div></div><p><b>Estimated time:</b> ${esc(q.estimated_time||'-')}</p><p><b>Service:</b> ${esc(q.service_details||'-')}</p><p><b>Parts:</b> ${esc(q.parts_details||'-')}</p><p><b>Vendor message:</b> ${esc(q.vendor_note||'-')}</p><div class="actions"><button class="btn" onclick="openChat('${esc(q.vendor_id)}')">💬 Message Vendor</button><button class="btn success" onclick="selectVendor('${esc(q.id)}','${esc(q.vendor_id)}')">✅ Choose This Vendor</button></div></div>`}).join('')};
+window.selectVendor=async function(quoteId,vendorId){const u=window.user;if(!u||!currentComplaint)return;if(!confirm('Choose this vendor and quotation?'))return;const q=await SB.from('repair_quotes').select('id,vendor_id,quote_amount').eq('id',String(quoteId)).eq('complaint_id',String(currentComplaint)).maybeSingle();if(q.error||!q.data||q.data.vendor_id!==vendorId)return alert('Quotation not found.');const c=await SB.from('complaints').update({selected_vendor_id:vendorId,selected_quote_id:quoteId,marketplace_status:'vendor_selected',quotation_status:'selected',repair_charge:q.data.quote_amount,updated_at:new Date().toISOString()}).eq('id',String(currentComplaint)).eq('customer_id',u.id);if(c.error)return alert(c.error.message);const o=await SB.from('repair_orders').upsert({complaint_id:String(currentComplaint),customer_id:u.id,vendor_id:vendorId,quote_id:quoteId,status:'vendor_selected',agreed_amount:q.data.quote_amount,updated_at:new Date().toISOString()},{onConflict:'complaint_id'});if(o.error)return alert('Vendor selected, but order creation failed: '+o.error.message);alert('Vendor selected successfully.');await window.loadRepairs();page2('repairs')};
+window.openChat=async function(vendorId){currentVendor=vendorId;page2('chat');if($('chatName'))$('chatName').textContent='Chat with selected vendor';await loadChat()};
+async function loadChat(){const u=window.user;if(!u||!currentComplaint||!currentVendor)return;const r=await SB.from('repair_messages').select('*').eq('complaint_id',String(currentComplaint)).order('created_at',{ascending:true});if(r.error){$('chatBox').innerHTML='<p class="muted">'+esc(r.error.message)+'</p>';return}$('chatBox').innerHTML=(r.data||[]).filter(m=>(m.sender_id===u.id&&m.receiver_id===currentVendor)||(m.sender_id===currentVendor&&m.receiver_id===u.id)).map(m=>`<div class="bubble ${m.sender_id===u.id?'mine':'theirs'}">${esc(m.message)}</div>`).join('')||'<p class="muted">No messages yet.</p>';$('chatBox').scrollTop=$('chatBox').scrollHeight}
+window.sendChat=async function(){const u=window.user,text=$('chatText').value.trim();if(!u||!text||!currentVendor)return;const r=await SB.from('repair_messages').insert({complaint_id:String(currentComplaint),sender_id:u.id,receiver_id:currentVendor,message:text,created_at:new Date().toISOString()});if(r.error)return alert(r.error.message);$('chatText').value='';loadChat()};
+if(!window.__repairMarketplaceInitialized){window.__repairMarketplaceInitialized=true;SB.auth.getSession().then(r=>{if(r.data.session)openApp(r.data.session.user)});}
 })();
